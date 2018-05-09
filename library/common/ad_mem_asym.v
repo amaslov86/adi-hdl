@@ -33,7 +33,7 @@
 // ***************************************************************************
 // ***************************************************************************
 
-// A simple asymetric memory. The write and read memory space must have the same size.
+// A simple asymmetric memory. The write and read memory space must have the same size.
 // 2^A_ADDRESS_WIDTH * A_DATA_WIDTH == 2^B_ADDRESS_WIDTH * B_DATA_WIDTH
 
 `timescale 1ns/100ps
