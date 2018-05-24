@@ -1,6 +1,6 @@
 
 set dac_fifo_name axi_adrv9009_dacfifo
-set dac_fifo_address_width 16
+set dac_fifo_address_width 14
 set dac_data_width 256
 set dac_dma_data_width 256
 
