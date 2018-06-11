@@ -13,8 +13,9 @@ source ../common/adrv9009_p_som_bd.tcl
 ad_ip_parameter axi_adrv9009_tx_dma CONFIG.DMA_DATA_WIDTH_SRC 128
 ad_ip_parameter axi_adrv9009_rx_dma CONFIG.DMA_DATA_WIDTH_DEST 128
 ad_ip_parameter axi_adrv9009_rx_os_dma CONFIG.DMA_DATA_WIDTH_DEST 128
-ad_ip_parameter axi_adrv9009_rx_dma CONFIG.FIFO_SIZE {16}
-ad_ip_parameter axi_adrv9009_rx_os_dma CONFIG.FIFO_SIZE {16}
+ad_ip_parameter axi_adrv9009_rx_dma CONFIG.FIFO_SIZE 32
+ad_ip_parameter axi_adrv9009_rx_os_dma CONFIG.FIFO_SIZE 32
+ad_ip_parameter axi_adrv9009_tx_dma CONFIG.FIFO_SIZE 32
 
 ad_ip_instance clk_wiz dma_clk_wiz
 ad_ip_parameter dma_clk_wiz CONFIG.PRIMITIVE MMCM
