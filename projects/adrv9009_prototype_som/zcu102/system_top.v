@@ -145,6 +145,8 @@ module system_top (
   wire                    ref_clk1;
   wire                    rx_sync;
   wire                    rx_os_sync;
+  wire                    tx_sync_a;
+  wire                    tx_sync_b;
   wire                    tx_sync;
   wire                    sysref;
 
@@ -180,7 +182,7 @@ module system_top (
   IBUFDS i_ibufds_tx_sync (
     .I (tx_sync_p),
     .IB (tx_sync_n),
-    .O (tx_sync));
+    .O (tx_sync_a));
 
   IBUFDS i_ibufds_sysref (
     .I (sysref_p),
@@ -188,12 +190,12 @@ module system_top (
     .O (sysref));
 
   OBUFDS i_obufds_rx_sync_b (
-    .I (rx_sync_b),
+    .I (rx_sync),
     .O (rx_sync_b_p),
     .OB (rx_sync_b_n));
 
   OBUFDS i_obufds_rx_os_sync_b (
-    .I (rx_os_sync_b),
+    .I (rx_os_sync),
     .O (rx_os_sync_b_p),
     .OB (rx_os_sync_b_n));
 
@@ -201,6 +203,8 @@ module system_top (
     .I (tx_sync_b_p),
     .IB (tx_sync_b_n),
     .O (tx_sync_b));
+
+  assign tx_sync = tx_sync_a && tx_sync_b;
 
   ad_iobuf #(.DATA_WIDTH(51)) i_iobuf (
     .dio_t ({gpio_t[82:32]}),
@@ -282,6 +286,9 @@ module system_top (
     .ps_intr_02 (1'd0),
     .ps_intr_03 (1'd0),
     .ps_intr_04 (1'd0),
+    .ps_intr_05 (1'd0),
+    .ps_intr_06 (1'd0),
+    .ps_intr_07 (1'd0),
     .ps_intr_14 (1'd0),
     .ps_intr_15 (1'd0),
     .rx_data_0_n (rx_data_n[0]),
@@ -303,13 +310,9 @@ module system_top (
     .rx_ref_clk_0 (ref_clk1),
     .rx_ref_clk_2 (ref_clk1),
     .rx_sync_0 (rx_sync),
-    .rx_sync_2 (rx_os_sync),
-    .rx_sync_4 (rx_sync_b),
-    .rx_sync_6 (rx_os_sync_b),
+    .rx_sync_4 (rx_os_sync),
     .rx_sysref_0 (sysref),
-    .rx_sysref_2 (sysref),
     .rx_sysref_4 (sysref),
-    .rx_sysref_6 (sysref),
     .spi0_sclk (spi_clk),
     .spi0_csn (spi_csn),
     .spi0_miso (spi_miso),
@@ -336,9 +339,7 @@ module system_top (
     .tx_data_7_p (tx_data_b_p[3]),
     .tx_ref_clk_0 (ref_clk1),
     .tx_sync_0 (tx_sync),
-    .tx_sync_4 (tx_sync_b),
-    .tx_sysref_0 (sysref),
-    .tx_sysref_4 (sysref)
+    .tx_sysref_0 (sysref)
   );
 
 endmodule

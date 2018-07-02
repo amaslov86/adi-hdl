@@ -32,9 +32,6 @@ ad_connect sys_dma_rstgen/ext_reset_in sys_rstgen/peripheral_reset
 ad_ip_parameter axi_adrv9009_tx_xcvr CONFIG.XCVR_TYPE 2
 ad_ip_parameter axi_adrv9009_rx_xcvr CONFIG.XCVR_TYPE 2
 ad_ip_parameter axi_adrv9009_rx_os_xcvr CONFIG.XCVR_TYPE 2
-ad_ip_parameter axi_adrv9009_b_tx_xcvr CONFIG.XCVR_TYPE 2
-ad_ip_parameter axi_adrv9009_b_rx_xcvr CONFIG.XCVR_TYPE 2
-ad_ip_parameter axi_adrv9009_b_rx_os_xcvr CONFIG.XCVR_TYPE 2
 
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.XCVR_TYPE 2
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.QPLL_FBDIV 80
