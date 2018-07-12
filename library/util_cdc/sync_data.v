@@ -54,7 +54,8 @@ wire in_toggle;
 reg out_toggle_d1 = 1'b0;
 reg in_toggle_d1 = 1'b0;
 
-reg [NUM_OF_BITS-1:0] cdc_hold;
+reg [NUM_OF_BITS-1:0] out_data = {NUM_OF_BITS{1'b0}};
+reg [NUM_OF_BITS-1:0] cdc_hold = {NUM_OF_BITS{1'b0}};
 
 sync_bits i_sync_out (
   .in_bits(in_toggle_d1),
