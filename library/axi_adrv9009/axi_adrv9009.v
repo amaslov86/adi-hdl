@@ -38,6 +38,7 @@
 module axi_adrv9009 #(
 
   parameter   ID = 0,
+  parameter   SINGLE_DUAL = 1, //set 1 for single, 2 for dual
   parameter   ADC_DATAPATH_DISABLE = 0,
   parameter   ADC_DATAFORMAT_DISABLE = 0,
   parameter   ADC_DCFILTER_DISABLE = 0,
@@ -56,96 +57,135 @@ module axi_adrv9009 #(
 
   // receive
 
-  input                   adc_clk,
-  input                   adc_rx_valid,
-  input       [ 3:0]      adc_rx_sof,
-  input       [ 63:0]     adc_rx_data,
-  output                  adc_rx_ready,
-  input                   adc_os_clk,
-  input                   adc_rx_os_valid,
-  input       [ 3:0]      adc_rx_os_sof,
-  input       [ 63:0]     adc_rx_os_data,
-  output                  adc_rx_os_ready,
+  input                             adc_clk,
+  input                             adc_rx_valid,
+  input       [ 3:0]                adc_rx_sof,
+  input       [SINGLE_DUAL*64-1:0]  adc_rx_data,
+  output                            adc_rx_ready,
+  input                             adc_os_clk,
+  input                             adc_rx_os_valid,
+  input       [ 3:0]                adc_rx_os_sof,
+  input       [SINGLE_DUAL*64-1:0]  adc_rx_os_data,
+  output                            adc_rx_os_ready,
 
   // transmit
 
-  input                   dac_clk,
-  output                  dac_tx_valid,
-  output      [127:0]     dac_tx_data,
-  input                   dac_tx_ready,
+  input                             dac_clk,
+  output                            dac_tx_valid,
+  output      [SINGLE_DUAL*128-1:0] dac_tx_data,
+  input                             dac_tx_ready,
 
   // master/slave
 
-  input                   dac_sync_in,
-  output                  dac_sync_out,
+  input                             dac_sync_in,
+  output                            dac_sync_out,
 
   // dma interface
 
-  output                  adc_enable_i0,
-  output                  adc_valid_i0,
-  output      [ 15:0]     adc_data_i0,
-  output                  adc_enable_q0,
-  output                  adc_valid_q0,
-  output      [ 15:0]     adc_data_q0,
-  output                  adc_enable_i1,
-  output                  adc_valid_i1,
-  output      [ 15:0]     adc_data_i1,
-  output                  adc_enable_q1,
-  output                  adc_valid_q1,
-  output      [ 15:0]     adc_data_q1,
-  input                   adc_dovf,
+  output                            adc_enable_i0,
+  output                            adc_valid_i0,
+  output      [ 15:0]               adc_data_i0,
+  output                            adc_enable_q0,
+  output                            adc_valid_q0,
+  output      [ 15:0]               adc_data_q0,
+  output                            adc_enable_i1,
+  output                            adc_valid_i1,
+  output      [ 15:0]               adc_data_i1,
+  output                            adc_enable_q1,
+  output                            adc_valid_q1,
+  output      [ 15:0]               adc_data_q1,
+  input                             adc_dovf,
 
-  output                  adc_os_enable_i0,
-  output                  adc_os_valid_i0,
-  output      [ 31:0]     adc_os_data_i0,
-  output                  adc_os_enable_q0,
-  output                  adc_os_valid_q0,
-  output      [ 31:0]     adc_os_data_q0,
-  output                  adc_os_enable_i1,
-  output                  adc_os_valid_i1,
-  output      [ 31:0]     adc_os_data_i1,
-  output                  adc_os_enable_q1,
-  output                  adc_os_valid_q1,
-  output      [ 31:0]     adc_os_data_q1,
-  input                   adc_os_dovf,
+  output                            adc_os_enable_i0,
+  output                            adc_os_valid_i0,
+  output      [ 31:0]               adc_os_data_i0,
+  output                            adc_os_enable_q0,
+  output                            adc_os_valid_q0,
+  output      [ 31:0]               adc_os_data_q0,
+  output                            adc_os_enable_i1,
+  output                            adc_os_valid_i1,
+  output      [ 31:0]               adc_os_data_i1,
+  output                            adc_os_enable_q1,
+  output                            adc_os_valid_q1,
+  output      [ 31:0]               adc_os_data_q1,
+  input                             adc_os_dovf,
 
-  output                  dac_enable_i0,
-  output                  dac_valid_i0,
-  input       [ 31:0]     dac_data_i0,
-  output                  dac_enable_q0,
-  output                  dac_valid_q0,
-  input       [ 31:0]     dac_data_q0,
-  output                  dac_enable_i1,
-  output                  dac_valid_i1,
-  input       [ 31:0]     dac_data_i1,
-  output                  dac_enable_q1,
-  output                  dac_valid_q1,
-  input       [ 31:0]     dac_data_q1,
-  input                   dac_dunf,
+  output                            dac_enable_i0,
+  output                            dac_valid_i0,
+  input       [ 31:0]               dac_data_i0,
+  output                            dac_enable_q0,
+  output                            dac_valid_q0,
+  input       [ 31:0]               dac_data_q0,
+  output                            dac_enable_i1,
+  output                            dac_valid_i1,
+  input       [ 31:0]               dac_data_i1,
+  output                            dac_enable_q1,
+  output                            dac_valid_q1,
+  input       [ 31:0]               dac_data_q1,
+  input                             dac_dunf,
+
+  output                            adc_b_enable_i0,
+  output                            adc_b_valid_i0,
+  output      [ 15:0]               adc_b_data_i0,
+  output                            adc_b_enable_q0,
+  output                            adc_b_valid_q0,
+  output      [ 15:0]               adc_b_data_q0,
+  output                            adc_b_enable_i1,
+  output                            adc_b_valid_i1,
+  output      [ 15:0]               adc_b_data_i1,
+  output                            adc_b_enable_q1,
+  output                            adc_b_valid_q1,
+  output      [ 15:0]               adc_b_data_q1,
+
+  output                            adc_os_b_enable_i0,
+  output                            adc_os_b_valid_i0,
+  output      [ 31:0]               adc_os_b_data_i0,
+  output                            adc_os_b_enable_q0,
+  output                            adc_os_b_valid_q0,
+  output      [ 31:0]               adc_os_b_data_q0,
+  output                            adc_os_b_enable_i1,
+  output                            adc_os_b_valid_i1,
+  output      [ 31:0]               adc_os_b_data_i1,
+  output                            adc_os_b_enable_q1,
+  output                            adc_os_b_valid_q1,
+  output      [ 31:0]               adc_os_b_data_q1,
+
+  output                            dac_b_enable_i0,
+  output                            dac_b_valid_i0,
+  input       [ 31:0]               dac_b_data_i0,
+  output                            dac_b_enable_q0,
+  output                            dac_b_valid_q0,
+  input       [ 31:0]               dac_b_data_q0,
+  output                            dac_b_enable_i1,
+  output                            dac_b_valid_i1,
+  input       [ 31:0]               dac_b_data_i1,
+  output                            dac_b_enable_q1,
+  output                            dac_b_valid_q1,
+  input       [ 31:0]               dac_b_data_q1,
 
   // axi interface
 
-  input                   s_axi_aclk,
-  input                   s_axi_aresetn,
-  input                   s_axi_awvalid,
-  input       [ 15:0]     s_axi_awaddr,
-  input       [ 2:0]      s_axi_awprot,
-  output                  s_axi_awready,
-  input                   s_axi_wvalid,
-  input       [ 31:0]     s_axi_wdata,
-  input       [ 3:0]      s_axi_wstrb,
-  output                  s_axi_wready,
-  output                  s_axi_bvalid,
-  output      [ 1:0]      s_axi_bresp,
-  input                   s_axi_bready,
-  input                   s_axi_arvalid,
-  input       [ 15:0]     s_axi_araddr,
-  input       [ 2:0]      s_axi_arprot,
-  output                  s_axi_arready,
-  output                  s_axi_rvalid,
-  output      [ 31:0]     s_axi_rdata,
-  output      [ 1:0]      s_axi_rresp,
-  input                   s_axi_rready);
+  input                             s_axi_aclk,
+  input                             s_axi_aresetn,
+  input                             s_axi_awvalid,
+  input       [ 15:0]               s_axi_awaddr,
+  input       [ 2:0]                s_axi_awprot,
+  output                            s_axi_awready,
+  input                             s_axi_wvalid,
+  input       [ 31:0]               s_axi_wdata,
+  input       [ 3:0]                s_axi_wstrb,
+  output                            s_axi_wready,
+  output                            s_axi_bvalid,
+  output      [ 1:0]                s_axi_bresp,
+  input                             s_axi_bready,
+  input                             s_axi_arvalid,
+  input       [ 15:0]               s_axi_araddr,
+  input       [ 2:0]                s_axi_arprot,
+  output                            s_axi_arready,
+  output                            s_axi_rvalid,
+  output      [ 31:0]               s_axi_rdata,
+  output      [ 1:0]                s_axi_rresp,
+  input                             s_axi_rready);
 
   // derived parameters
 
@@ -166,23 +206,24 @@ module axi_adrv9009 #(
 
   // internal signals
 
-  wire              up_clk;
-  wire              up_rstn;
-  wire              adc_rst;
-  wire              adc_os_rst;
-  wire    [ 63:0]   adc_data_s;
-  wire              adc_os_valid_s;
-  wire    [127:0]   adc_os_data_s;
-  wire              dac_rst;
-  wire    [127:0]   dac_data_s;
-  wire              up_wreq_s;
-  wire    [ 13:0]   up_waddr_s;
-  wire    [ 31:0]   up_wdata_s;
-  wire    [  2:0]   up_wack_s;
-  wire              up_rreq_s;
-  wire    [ 13:0]   up_raddr_s;
-  wire    [ 31:0]   up_rdata_s[0:2];
-  wire    [  2:0]   up_rack_s;
+  wire                          up_clk;
+  wire                          up_rstn;
+  wire                          adc_rst;
+  wire                          adc_os_rst;
+  wire    [SINGLE_DUAL*64-1:0]  adc_data_s;
+  wire                          adc_os_valid_s;
+  wire                          adc_os_b_valid_s;
+  wire    [SINGLE_DUAL*128-1:0] adc_os_data_s;
+  wire                          dac_rst;
+  wire    [SINGLE_DUAL*128-1:0] dac_data_s;
+  wire                          up_wreq_s;
+  wire    [ 13:0]               up_waddr_s;
+  wire    [ 31:0]               up_wdata_s;
+  wire    [  2:0]               up_wack_s;
+  wire                          up_rreq_s;
+  wire    [ 13:0]               up_raddr_s;
+  wire    [ 31:0]               up_rdata_s[0:2];
+  wire    [  2:0]               up_rack_s;
 
   // signal name changes
 
@@ -214,22 +255,43 @@ module axi_adrv9009 #(
   axi_adrv9009_if i_if (
     .adc_clk (adc_clk),
     .adc_rx_sof (adc_rx_sof),
-    .adc_rx_data (adc_rx_data),
+    .adc_rx_data (adc_rx_data[63:0]),
     .adc_os_clk (adc_os_clk),
     .adc_rx_os_sof (adc_rx_os_sof),
-    .adc_rx_os_data (adc_rx_os_data),
+    .adc_rx_os_data (adc_rx_os_data[63:0]),
     .adc_r1_mode (adc_r1_mode),
-    .adc_data (adc_data_s),
+    .adc_data (adc_data_s[63:0]),
     .adc_os_valid (adc_os_valid_s),
-    .adc_os_data (adc_os_data_s),
+    .adc_os_data (adc_os_data_s[127:0]),
     .dac_clk (dac_clk),
-    .dac_tx_data (dac_tx_data),
-    .dac_data (dac_data_s));
+    .dac_tx_data (dac_tx_data[127:0]),
+    .dac_data (dac_data_s[127:0]));
+
+  genvar i;
+  generate
+  if (SINGLE_DUAL==2) begin
+  axi_adrv9009_if i_2_if (
+    .adc_clk (adc_clk),
+    .adc_rx_sof (adc_rx_sof),
+    .adc_rx_data (adc_rx_data[127:64]),
+    .adc_os_clk (adc_os_clk),
+    .adc_rx_os_sof (adc_rx_os_sof),
+    .adc_rx_os_data (adc_rx_os_data[127:64]),
+    .adc_r1_mode (adc_r1_mode),
+    .adc_data (adc_data_s[127:64]),
+    .adc_os_valid (adc_os_b_valid_s),
+    .adc_os_data (adc_os_data_s[255:128]),
+    .dac_clk (dac_clk),
+    .dac_tx_data (dac_tx_data[255:128]),
+    .dac_data (dac_data_s[255:128]));
+  end
+  endgenerate
 
   // receive
 
   axi_adrv9009_rx #(
     .ID (ID),
+    .SINGLE_DUAL(SINGLE_DUAL),
     .DATAFORMAT_DISABLE (ADC_DATAFORMAT_DISABLE_INT),
     .DCFILTER_DISABLE (ADC_DCFILTER_DISABLE_INT),
     .IQCORRECTION_DISABLE (ADC_IQCORRECTION_DISABLE_INT))
@@ -249,6 +311,18 @@ module axi_adrv9009 #(
     .adc_enable_q1 (adc_enable_q1),
     .adc_valid_q1 (adc_valid_q1),
     .adc_data_q1 (adc_data_q1),
+    .adc_b_enable_i0 (adc_b_enable_i0),
+    .adc_b_valid_i0 (adc_b_valid_i0),
+    .adc_b_data_i0 (adc_b_data_i0),
+    .adc_b_enable_q0 (adc_b_enable_q0),
+    .adc_b_valid_q0 (adc_b_valid_q0),
+    .adc_b_data_q0 (adc_b_data_q0),
+    .adc_b_enable_i1 (adc_b_enable_i1),
+    .adc_b_valid_i1 (adc_b_valid_i1),
+    .adc_b_data_i1 (adc_b_data_i1),
+    .adc_b_enable_q1 (adc_b_enable_q1),
+    .adc_b_valid_q1 (adc_b_valid_q1),
+    .adc_b_data_q1 (adc_b_data_q1),
     .adc_dovf (adc_dovf),
     .up_rstn (up_rstn),
     .up_clk (up_clk),
@@ -265,6 +339,7 @@ module axi_adrv9009 #(
 
   axi_adrv9009_rx_os #(
     .ID (ID),
+    .SINGLE_DUAL(SINGLE_DUAL),
     .DATAFORMAT_DISABLE (ADC_DATAFORMAT_DISABLE_INT),
     .DCFILTER_DISABLE (ADC_DCFILTER_DISABLE_INT),
     .IQCORRECTION_DISABLE (ADC_IQCORRECTION_DISABLE_INT))
@@ -272,6 +347,7 @@ module axi_adrv9009 #(
     .adc_os_rst (adc_os_rst),
     .adc_os_clk (adc_os_clk),
     .adc_os_valid (adc_os_valid_s),
+    .adc_os_b_valid (adc_os_b_valid_s),
     .adc_os_data (adc_os_data_s),
     .adc_r1_mode (adc_r1_mode),
     .adc_os_enable_i0 (adc_os_enable_i0),
@@ -286,6 +362,18 @@ module axi_adrv9009 #(
     .adc_os_enable_q1 (adc_os_enable_q1),
     .adc_os_valid_q1 (adc_os_valid_q1),
     .adc_os_data_q1 (adc_os_data_q1),
+    .adc_os_b_enable_i0 (adc_os_b_enable_i0),
+    .adc_os_b_valid_i0 (adc_os_b_valid_i0),
+    .adc_os_b_data_i0 (adc_os_b_data_i0),
+    .adc_os_b_enable_q0 (adc_os_b_enable_q0),
+    .adc_os_b_valid_q0 (adc_os_b_valid_q0),
+    .adc_os_b_data_q0 (adc_os_b_data_q0),
+    .adc_os_b_enable_i1 (adc_os_b_enable_i1),
+    .adc_os_b_valid_i1 (adc_os_b_valid_i1),
+    .adc_os_b_data_i1 (adc_os_b_data_i1),
+    .adc_os_b_enable_q1 (adc_os_b_enable_q1),
+    .adc_os_b_valid_q1 (adc_os_b_valid_q1),
+    .adc_os_b_data_q1 (adc_os_b_data_q1),
     .adc_os_dovf (adc_os_dovf),
     .up_rstn (up_rstn),
     .up_clk (up_clk),
@@ -302,6 +390,7 @@ module axi_adrv9009 #(
 
   axi_adrv9009_tx #(
     .ID (ID),
+    .SINGLE_DUAL(SINGLE_DUAL),
     .DDS_DISABLE (DAC_DDS_DISABLE_INT),
     .IQCORRECTION_DISABLE (DAC_IQCORRECTION_DISABLE_INT),
     .DAC_DDS_TYPE (DAC_DDS_TYPE),
@@ -325,6 +414,18 @@ module axi_adrv9009 #(
     .dac_enable_q1 (dac_enable_q1),
     .dac_valid_q1 (dac_valid_q1),
     .dac_data_q1 (dac_data_q1),
+    .dac_b_enable_i0 (dac_b_enable_i0),
+    .dac_b_valid_i0 (dac_b_valid_i0),
+    .dac_b_data_i0 (dac_b_data_i0),
+    .dac_b_enable_q0 (dac_b_enable_q0),
+    .dac_b_valid_q0 (dac_b_valid_q0),
+    .dac_b_data_q0 (dac_b_data_q0),
+    .dac_b_enable_i1 (dac_b_enable_i1),
+    .dac_b_valid_i1 (dac_b_valid_i1),
+    .dac_b_data_i1 (dac_b_data_i1),
+    .dac_b_enable_q1 (dac_b_enable_q1),
+    .dac_b_valid_q1 (dac_b_valid_q1),
+    .dac_b_data_q1 (dac_b_data_q1),
     .dac_dunf(dac_dunf),
     .up_rstn (up_rstn),
     .up_clk (up_clk),

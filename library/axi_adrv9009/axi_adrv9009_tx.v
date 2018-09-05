@@ -38,6 +38,7 @@
 module axi_adrv9009_tx #(
 
   parameter   ID = 0,
+  parameter   SINGLE_DUAL = 1, //set 1 for single, 2 for dual
   parameter   DISABLE = 0,
   parameter   DDS_DISABLE = 0,
   parameter   IQCORRECTION_DISABLE = 0,
@@ -47,43 +48,57 @@ module axi_adrv9009_tx #(
 
   // dac interface
 
-  output                  dac_rst,
-  input                   dac_clk,
-  output      [127:0]     dac_data,
+  output                            dac_rst,
+  input                             dac_clk,
+  output      [SINGLE_DUAL*128-1:0] dac_data,
 
   // master/slave
 
-  input                   dac_sync_in,
-  output                  dac_sync_out,
+  input                             dac_sync_in,
+  output                            dac_sync_out,
 
   // dma interface
 
-  output                  dac_enable_i0,
-  output                  dac_valid_i0,
-  input       [ 31:0]     dac_data_i0,
-  output                  dac_enable_q0,
-  output                  dac_valid_q0,
-  input       [ 31:0]     dac_data_q0,
-  output                  dac_enable_i1,
-  output                  dac_valid_i1,
-  input       [ 31:0]     dac_data_i1,
-  output                  dac_enable_q1,
-  output                  dac_valid_q1,
-  input       [ 31:0]     dac_data_q1,
-  input                   dac_dunf,
+  output                            dac_enable_i0,
+  output                            dac_valid_i0,
+  input       [ 31:0]               dac_data_i0,
+  output                            dac_enable_q0,
+  output                            dac_valid_q0,
+  input       [ 31:0]               dac_data_q0,
+  output                            dac_enable_i1,
+  output                            dac_valid_i1,
+  input       [ 31:0]               dac_data_i1,
+  output                            dac_enable_q1,
+  output                            dac_valid_q1,
+  input       [ 31:0]               dac_data_q1,
+
+  output                            dac_b_enable_i0,
+  output                            dac_b_valid_i0,
+  input       [ 31:0]               dac_b_data_i0,
+  output                            dac_b_enable_q0,
+  output                            dac_b_valid_q0,
+  input       [ 31:0]               dac_b_data_q0,
+  output                            dac_b_enable_i1,
+  output                            dac_b_valid_i1,
+  input       [ 31:0]               dac_b_data_i1,
+  output                            dac_b_enable_q1,
+  output                            dac_b_valid_q1,
+  input       [ 31:0]               dac_b_data_q1,
+
+  input                             dac_dunf,
 
   // processor interface
 
-  input                   up_rstn,
-  input                   up_clk,
-  input                   up_wreq,
-  input       [ 13:0]     up_waddr,
-  input       [ 31:0]     up_wdata,
-  output  reg             up_wack,
-  input                   up_rreq,
-  input       [ 13:0]     up_raddr,
-  output  reg [ 31:0]     up_rdata,
-  output  reg             up_rack);
+  input                             up_rstn,
+  input                             up_clk,
+  input                             up_wreq,
+  input       [ 13:0]               up_waddr,
+  input       [ 31:0]               up_wdata,
+  output  reg                       up_wack,
+  input                             up_rreq,
+  input       [ 13:0]               up_raddr,
+  output  reg [ 31:0]               up_rdata,
+  output  reg                       up_rack);
 
   // configuration settings
 
@@ -102,9 +117,9 @@ module axi_adrv9009_tx #(
   wire    [ 31:0]   dac_data_iq_i1_s;
   wire    [ 31:0]   dac_data_iq_q1_s;
   wire              dac_dds_format_s;
-  wire    [  4:0]   up_wack_s;
-  wire    [  4:0]   up_rack_s;
-  wire    [ 31:0]   up_rdata_s[0:4];
+  wire    [  8:0]   up_wack_s;
+  wire    [  8:0]   up_rack_s;
+  wire    [ 31:0]   up_rdata_s[0:8];
 
   // master/slave
 
@@ -125,7 +140,8 @@ module axi_adrv9009_tx #(
       up_wack <= | up_wack_s;
       up_rack <= | up_rack_s;
       up_rdata <= up_rdata_s[0] | up_rdata_s[1] | up_rdata_s[2] |
-        up_rdata_s[3] | up_rdata_s[4];
+        up_rdata_s[3] | up_rdata_s[4] | up_rdata_s[5] |
+        up_rdata_s[6] | up_rdata_s[7] | up_rdata_s[8] ;
     end
   end
 
@@ -265,6 +281,163 @@ module axi_adrv9009_tx #(
     .up_rdata (up_rdata_s[3]),
     .up_rack (up_rack_s[3]));
 
+generate
+if (SINGLE_DUAL==2) begin
+  wire    [ 31:0]   dac_b_data_iq_i0_s;
+  wire    [ 31:0]   dac_b_data_iq_q0_s;
+  wire    [ 31:0]   dac_b_data_iq_i1_s;
+  wire    [ 31:0]   dac_b_data_iq_q1_s;
+
+  assign dac_b_valid_i0 = 1'b1;
+  assign dac_b_valid_q0 = 1'b1;
+  assign dac_b_valid_i1 = 1'b1;
+  assign dac_b_valid_q1 = 1'b1;
+
+  axi_adrv9009_tx_channel #(
+    .CHANNEL_ID (4),
+    .Q_OR_I_N (0),
+    .DISABLE (DISABLE),
+    .DDS_DISABLE (DDS_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DAC_DDS_TYPE (DAC_DDS_TYPE),
+    .DAC_DDS_CORDIC_DW (DAC_DDS_CORDIC_DW),
+    .DAC_DDS_CORDIC_PHASE_DW (DAC_DDS_CORDIC_PHASE_DW))
+  i_tx_channel_b_0 (
+    .dac_clk (dac_clk),
+    .dac_rst (dac_rst),
+    .dac_data_in (dac_b_data_i0),
+    .dac_data_out (dac_data[159:128]),
+    .dac_data_iq_in (dac_b_data_iq_q0_s),
+    .dac_data_iq_out (dac_b_data_iq_i0_s),
+    .dac_enable (dac_b_enable_i0),
+    .dac_data_sync (dac_data_sync),
+    .dac_dds_format (dac_dds_format_s),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[4]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[4]),
+    .up_rack (up_rack_s[4]));
+
+  axi_adrv9009_tx_channel #(
+    .CHANNEL_ID (5),
+    .Q_OR_I_N (1),
+    .DISABLE (DISABLE),
+    .DDS_DISABLE (DDS_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DAC_DDS_TYPE (DAC_DDS_TYPE),
+    .DAC_DDS_CORDIC_DW (DAC_DDS_CORDIC_DW),
+    .DAC_DDS_CORDIC_PHASE_DW (DAC_DDS_CORDIC_PHASE_DW))
+  i_tx_channel_b_1 (
+    .dac_clk (dac_clk),
+    .dac_rst (dac_rst),
+    .dac_data_in (dac_b_data_q0),
+    .dac_data_out (dac_data[191:160]),
+    .dac_data_iq_in (dac_b_data_iq_i0_s),
+    .dac_data_iq_out (dac_b_data_iq_q0_s),
+    .dac_enable (dac_b_enable_q0),
+    .dac_data_sync (dac_data_sync),
+    .dac_dds_format (dac_dds_format_s),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[5]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[5]),
+    .up_rack (up_rack_s[5]));
+
+  axi_adrv9009_tx_channel #(
+    .CHANNEL_ID (6),
+    .Q_OR_I_N (0),
+    .DISABLE (DISABLE),
+    .DDS_DISABLE (DDS_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DAC_DDS_TYPE (DAC_DDS_TYPE),
+    .DAC_DDS_CORDIC_DW (DAC_DDS_CORDIC_DW),
+    .DAC_DDS_CORDIC_PHASE_DW (DAC_DDS_CORDIC_PHASE_DW))
+  i_tx_channel_2 (
+    .dac_clk (dac_clk),
+    .dac_rst (dac_rst),
+    .dac_data_in (dac_data_i1),
+    .dac_data_out (dac_data[223:192]),
+    .dac_data_iq_in (dac_b_data_iq_q1_s),
+    .dac_data_iq_out (dac_b_data_iq_i1_s),
+    .dac_enable (dac_b_enable_i1),
+    .dac_data_sync (dac_data_sync),
+    .dac_dds_format (dac_dds_format_s),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[6]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[6]),
+    .up_rack (up_rack_s[6]));
+
+  axi_adrv9009_tx_channel #(
+    .CHANNEL_ID (7),
+    .Q_OR_I_N (1),
+    .DISABLE (DISABLE),
+    .DDS_DISABLE (DDS_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DAC_DDS_TYPE (DAC_DDS_TYPE),
+    .DAC_DDS_CORDIC_DW (DAC_DDS_CORDIC_DW),
+    .DAC_DDS_CORDIC_PHASE_DW (DAC_DDS_CORDIC_PHASE_DW))
+  i_tx_channel_b_3 (
+    .dac_clk (dac_clk),
+    .dac_rst (dac_rst),
+    .dac_data_in (dac_data_q1),
+    .dac_data_out (dac_data[255:224]),
+    .dac_data_iq_in (dac_b_data_iq_i1_s),
+    .dac_data_iq_out (dac_b_data_iq_q1_s),
+    .dac_enable (dac_b_enable_q1),
+    .dac_data_sync (dac_data_sync),
+    .dac_dds_format (dac_dds_format_s),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[7]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[7]),
+    .up_rack (up_rack_s[7]));
+
+end else begin
+
+  assign up_rdata_s[4] = 32'h0;
+  assign up_rdata_s[5] = 32'h0;
+  assign up_rdata_s[6] = 32'h0;
+  assign up_rdata_s[7] = 32'h0;
+  assign up_wack_s[4] = 1'b0;
+  assign up_wack_s[5] = 1'b0;
+  assign up_wack_s[6] = 1'b0;
+  assign up_wack_s[7] = 1'b0;
+  assign up_rack_s[4] = 1'b0;
+  assign up_rack_s[5] = 1'b0;
+  assign up_rack_s[6] = 1'b0;
+  assign up_rack_s[7] = 1'b0;
+  assign dac_b_valid_i0 = 1'b0;
+  assign dac_b_valid_q0 = 1'b0;
+  assign dac_b_valid_i1 = 1'b0;
+  assign dac_b_valid_q1 = 1'b0;
+  assign dac_b_enable_i0 = 1'b0;
+  assign dac_b_enable_q0 = 1'b0;
+  assign dac_b_enable_i1 = 1'b0;
+  assign dac_b_enable_q1 = 1'b0;
+end
+endgenerate
+
   // dac common processor interface
 
   up_dac_common #(
@@ -302,7 +475,7 @@ module axi_adrv9009_tx #(
     .up_drp_ready (1'd0),
     .up_drp_locked (1'd1),
     .up_usr_chanmax (),
-    .dac_usr_chanmax (8'd3),
+    .dac_usr_chanmax (SINGLE_DUAL*4-1),
     .up_dac_gpio_in (32'd0),
     .up_dac_gpio_out (),
     .up_rstn (up_rstn),
@@ -310,11 +483,11 @@ module axi_adrv9009_tx #(
     .up_wreq (up_wreq),
     .up_waddr (up_waddr),
     .up_wdata (up_wdata),
-    .up_wack (up_wack_s[4]),
+    .up_wack (up_wack_s[8]),
     .up_rreq (up_rreq),
     .up_raddr (up_raddr),
-    .up_rdata (up_rdata_s[4]),
-    .up_rack (up_rack_s[4]));
+    .up_rdata (up_rdata_s[8]),
+    .up_rack (up_rack_s[8]));
 
 endmodule
 

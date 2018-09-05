@@ -38,46 +38,60 @@
 module axi_adrv9009_rx_os #(
 
   parameter   ID = 0,
+  parameter   SINGLE_DUAL = 1, //set 1 for single, 2 for dual
   parameter   DATAFORMAT_DISABLE = 0,
   parameter   DCFILTER_DISABLE = 0,
   parameter   IQCORRECTION_DISABLE = 0) (
 
   // adc interface
 
-  output                  adc_os_rst,
-  input                   adc_os_clk,
-  input                   adc_os_valid,
-  input       [127:0]     adc_os_data,
-  output                  adc_r1_mode,
+  output                            adc_os_rst,
+  input                             adc_os_clk,
+  input                             adc_os_valid,
+  input                             adc_os_b_valid,
+  input       [SINGLE_DUAL*128-1:0] adc_os_data,
+  output                            adc_r1_mode,
 
   // dma interface
 
-  output                  adc_os_enable_i0,
-  output                  adc_os_valid_i0,
-  output      [ 31:0]     adc_os_data_i0,
-  output                  adc_os_enable_q0,
-  output                  adc_os_valid_q0,
-  output      [ 31:0]     adc_os_data_q0,
-  output                  adc_os_enable_i1,
-  output                  adc_os_valid_i1,
-  output      [ 31:0]     adc_os_data_i1,
-  output                  adc_os_enable_q1,
-  output                  adc_os_valid_q1,
-  output      [ 31:0]     adc_os_data_q1,
-  input                   adc_os_dovf,
+  output                            adc_os_enable_i0,
+  output                            adc_os_valid_i0,
+  output      [ 31:0]               adc_os_data_i0,
+  output                            adc_os_enable_q0,
+  output                            adc_os_valid_q0,
+  output      [ 31:0]               adc_os_data_q0,
+  output                            adc_os_enable_i1,
+  output                            adc_os_valid_i1,
+  output      [ 31:0]               adc_os_data_i1,
+  output                            adc_os_enable_q1,
+  output                            adc_os_valid_q1,
+  output      [ 31:0]               adc_os_data_q1,
+  output                            adc_os_b_enable_i0,
+  output                            adc_os_b_valid_i0,
+  output      [ 31:0]               adc_os_b_data_i0,
+  output                            adc_os_b_enable_q0,
+  output                            adc_os_b_valid_q0,
+  output      [ 31:0]               adc_os_b_data_q0,
+  output                            adc_os_b_enable_i1,
+  output                            adc_os_b_valid_i1,
+  output      [ 31:0]               adc_os_b_data_i1,
+  output                            adc_os_b_enable_q1,
+  output                            adc_os_b_valid_q1,
+  output      [ 31:0]               adc_os_b_data_q1,
+  input                             adc_os_dovf,
 
   // processor interface
 
-  input                   up_rstn,
-  input                   up_clk,
-  input                   up_wreq,
-  input       [ 13:0]     up_waddr,
-  input       [ 31:0]     up_wdata,
-  output  reg             up_wack,
-  input                   up_rreq,
-  input       [ 13:0]     up_raddr,
-  output  reg [ 31:0]     up_rdata,
-  output  reg             up_rack);
+  input                             up_rstn,
+  input                             up_clk,
+  input                             up_wreq,
+  input       [ 13:0]               up_waddr,
+  input       [ 31:0]               up_wdata,
+  output  reg                       up_wack,
+  input                             up_rreq,
+  input       [ 13:0]               up_raddr,
+  output  reg [ 31:0]               up_rdata,
+  output  reg                       up_rack);
 
   localparam  CONFIG =  (DATAFORMAT_DISABLE * 4) +
                         (DCFILTER_DISABLE * 2) +
@@ -95,12 +109,12 @@ module axi_adrv9009_rx_os #(
   wire    [ 31:0]   adc_os_data_iq_q0_s;
   wire    [ 31:0]   adc_os_data_iq_i1_s;
   wire    [ 31:0]   adc_os_data_iq_q1_s;
-  wire    [  3:0]   up_adc_pn_err_s;
-  wire    [  3:0]   up_adc_pn_oos_s;
-  wire    [  3:0]   up_adc_or_s;
-  wire    [  4:0]   up_wack_s;
-  wire    [  4:0]   up_rack_s;
-  wire    [ 31:0]   up_rdata_s[0:4];
+  wire    [  7:0]   up_adc_pn_err_s;
+  wire    [  7:0]   up_adc_pn_oos_s;
+  wire    [  7:0]   up_adc_or_s;
+  wire    [  8:0]   up_wack_s;
+  wire    [  8:0]   up_rack_s;
+  wire    [ 31:0]   up_rdata_s[0:8];
 
   // processor read interface
 
@@ -118,7 +132,8 @@ module axi_adrv9009_rx_os #(
       up_status_or <= | up_adc_or_s;
       up_wack <= | up_wack_s;
       up_rack <= | up_rack_s;
-      up_rdata <= up_rdata_s[0] | up_rdata_s[1] | up_rdata_s[2] | up_rdata_s[3] | up_rdata_s[4] ;
+      up_rdata <= up_rdata_s[0] | up_rdata_s[1] | up_rdata_s[2] | up_rdata_s[3] | up_rdata_s[4] |
+                  up_rdata_s[5] | up_rdata_s[6] | up_rdata_s[7] | up_rdata_s[8];
     end
   end
 
@@ -193,7 +208,7 @@ module axi_adrv9009_rx_os #(
     .up_rack (up_rack_s[1]));
 
   axi_adrv9009_rx_channel #(
-    .Q_OR_I_N (2),
+    .Q_OR_I_N (0),
     .COMMON_ID ('h21),
     .CHANNEL_ID (2),
     .DISABLE (0),
@@ -226,7 +241,7 @@ module axi_adrv9009_rx_os #(
     .up_rack (up_rack_s[2]));
 
   axi_adrv9009_rx_channel #(
-    .Q_OR_I_N (3),
+    .Q_OR_I_N (1),
     .COMMON_ID ('h21),
     .CHANNEL_ID (3),
     .DISABLE (0),
@@ -258,6 +273,188 @@ module axi_adrv9009_rx_os #(
     .up_rdata (up_rdata_s[3]),
     .up_rack (up_rack_s[3]));
 
+generate
+if (SINGLE_DUAL==2) begin
+  wire    [ 31:0]   adc_os_b_data_iq_i0_s;
+  wire    [ 31:0]   adc_os_b_data_iq_q0_s;
+  wire    [ 31:0]   adc_os_b_data_iq_i1_s;
+  wire    [ 31:0]   adc_os_b_data_iq_q1_s;
+
+  // channel o/s (i)
+
+  axi_adrv9009_rx_channel #(
+    .Q_OR_I_N (0),
+    .COMMON_ID ('h21),
+    .CHANNEL_ID (4),
+    .DISABLE (0),
+    .DATAFORMAT_DISABLE (DATAFORMAT_DISABLE),
+    .DCFILTER_DISABLE (DCFILTER_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DATA_WIDTH (32))
+  i_rx_os_channel_b_0 (
+    .adc_clk (adc_os_clk),
+    .adc_rst (adc_os_rst),
+    .adc_valid_in (adc_os_b_valid),
+    .adc_data_in (adc_os_data[159:128]),
+    .adc_valid_out (adc_os_b_valid_i0),
+    .adc_data_out (adc_os_b_data_i0),
+    .adc_data_iq_in (adc_os_b_data_iq_q0_s),
+    .adc_data_iq_out (adc_os_b_data_iq_i0_s),
+    .adc_enable (adc_os_b_enable_i0),
+    .up_adc_pn_err (up_adc_pn_err_s[4]),
+    .up_adc_pn_oos (up_adc_pn_oos_s[4]),
+    .up_adc_or (up_adc_or_s[4]),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[4]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[4]),
+    .up_rack (up_rack_s[4]));
+
+  // channel o/s (q)
+
+  axi_adrv9009_rx_channel #(
+    .Q_OR_I_N (1),
+    .COMMON_ID ('h21),
+    .CHANNEL_ID (5),
+    .DISABLE (0),
+    .DATAFORMAT_DISABLE (DATAFORMAT_DISABLE),
+    .DCFILTER_DISABLE (DCFILTER_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DATA_WIDTH (32))
+  i_rx_os_channel_b_1 (
+    .adc_clk (adc_os_clk),
+    .adc_rst (adc_os_rst),
+    .adc_valid_in (adc_os_b_valid),
+    .adc_data_in (adc_os_data[191:160]),
+    .adc_valid_out (adc_os_b_valid_q0),
+    .adc_data_out (adc_os_b_data_q0),
+    .adc_data_iq_in (adc_os_b_data_iq_i0_s),
+    .adc_data_iq_out (adc_os_b_data_iq_q0_s),
+    .adc_enable (adc_os_b_enable_q0),
+    .up_adc_pn_err (up_adc_pn_err_s[5]),
+    .up_adc_pn_oos (up_adc_pn_oos_s[5]),
+    .up_adc_or (up_adc_or_s[5]),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[5]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[5]),
+    .up_rack (up_rack_s[5]));
+
+  axi_adrv9009_rx_channel #(
+    .Q_OR_I_N (0),
+    .COMMON_ID ('h21),
+    .CHANNEL_ID (6),
+    .DISABLE (0),
+    .DATAFORMAT_DISABLE (DATAFORMAT_DISABLE),
+    .DCFILTER_DISABLE (DCFILTER_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DATA_WIDTH (32))
+  i_rx_os_channel_b_2 (
+    .adc_clk (adc_os_clk),
+    .adc_rst (adc_os_rst),
+    .adc_valid_in (adc_os_b_valid),
+    .adc_data_in (adc_os_data[223:192]),
+    .adc_valid_out (adc_os_b_valid_i1),
+    .adc_data_out (adc_os_b_data_i1),
+    .adc_data_iq_in (adc_os_b_data_iq_q1_s),
+    .adc_data_iq_out (adc_os_b_data_iq_i1_s),
+    .adc_enable (adc_os_b_enable_i1),
+    .up_adc_pn_err (up_adc_pn_err_s[6]),
+    .up_adc_pn_oos (up_adc_pn_oos_s[6]),
+    .up_adc_or (up_adc_or_s[6]),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[6]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[6]),
+    .up_rack (up_rack_s[6]));
+
+  axi_adrv9009_rx_channel #(
+    .Q_OR_I_N (1),
+    .COMMON_ID ('h21),
+    .CHANNEL_ID (7),
+    .DISABLE (0),
+    .DATAFORMAT_DISABLE (DATAFORMAT_DISABLE),
+    .DCFILTER_DISABLE (DCFILTER_DISABLE),
+    .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .DATA_WIDTH (32))
+  i_rx_os_channel_b_3 (
+    .adc_clk (adc_os_clk),
+    .adc_rst (adc_os_rst),
+    .adc_valid_in (adc_os_b_valid),
+    .adc_data_in (adc_os_data[255:224]),
+    .adc_valid_out (adc_os_b_valid_q1),
+    .adc_data_out (adc_os_b_data_q1),
+    .adc_data_iq_in (adc_os_b_data_iq_i1_s),
+    .adc_data_iq_out (adc_os_b_data_iq_q1_s),
+    .adc_enable (adc_os_b_enable_q1),
+    .up_adc_pn_err (up_adc_pn_err_s[7]),
+    .up_adc_pn_oos (up_adc_pn_oos_s[7]),
+    .up_adc_or (up_adc_or_s[7]),
+    .up_rstn (up_rstn),
+    .up_clk (up_clk),
+    .up_wreq (up_wreq),
+    .up_waddr (up_waddr),
+    .up_wdata (up_wdata),
+    .up_wack (up_wack_s[7]),
+    .up_rreq (up_rreq),
+    .up_raddr (up_raddr),
+    .up_rdata (up_rdata_s[7]),
+    .up_rack (up_rack_s[7]));
+end else begin
+  assign up_rdata_s[4] = 32'h0;
+  assign up_rdata_s[5] = 32'h0;
+  assign up_rdata_s[6] = 32'h0;
+  assign up_rdata_s[7] = 32'h0;
+  assign up_wack_s[4] = 1'b0;
+  assign up_wack_s[5] = 1'b0;
+  assign up_wack_s[6] = 1'b0;
+  assign up_wack_s[7] = 1'b0;
+  assign up_rack_s[4] = 1'b0;
+  assign up_rack_s[5] = 1'b0;
+  assign up_rack_s[6] = 1'b0;
+  assign up_rack_s[7] = 1'b0;
+  assign adc_os_b_valid_i0 = 1'b0;
+  assign adc_os_b_valid_q0 = 1'b0;
+  assign adc_os_b_valid_i1 = 1'b0;
+  assign adc_os_b_valid_q1 = 1'b0;
+  assign adc_os_b_enable_i0 = 1'b0;
+  assign adc_os_b_enable_q0 = 1'b0;
+  assign adc_os_b_enable_i1 = 1'b0;
+  assign adc_os_b_enable_q1 = 1'b0;
+  assign adc_os_b_data_i0 = 32'h0;
+  assign adc_os_b_data_q0 = 32'h0;
+  assign adc_os_b_data_i1 = 32'h0;
+  assign adc_os_b_data_q1 = 32'h0;
+  assign up_adc_pn_err_s[4] = 1'b0;
+  assign up_adc_pn_err_s[5] = 1'b0;
+  assign up_adc_pn_err_s[6] = 1'b0;
+  assign up_adc_pn_err_s[7] = 1'b0;
+  assign up_adc_pn_oos_s[4] = 1'b0;
+  assign up_adc_pn_oos_s[5] = 1'b0;
+  assign up_adc_pn_oos_s[6] = 1'b0;
+  assign up_adc_pn_oos_s[7] = 1'b0;
+  assign up_adc_or_s[4] = 1'b0;
+  assign up_adc_or_s[5] = 1'b0;
+  assign up_adc_or_s[6] = 1'b0;
+  assign up_adc_or_s[7] = 1'b0;
+end
+
+endgenerate
   // common processor control
 
   up_adc_common #(
@@ -297,7 +494,7 @@ module axi_adrv9009_rx_os #(
     .up_drp_ready (1'd0),
     .up_drp_locked (1'd1),
     .up_usr_chanmax_out (),
-    .up_usr_chanmax_in (8'd3),
+    .up_usr_chanmax_in (SINGLE_DUAL*4-1),
     .up_adc_gpio_in (32'd0),
     .up_adc_gpio_out (),
     .up_rstn (up_rstn),
@@ -305,11 +502,11 @@ module axi_adrv9009_rx_os #(
     .up_wreq (up_wreq),
     .up_waddr (up_waddr),
     .up_wdata (up_wdata),
-    .up_wack (up_wack_s[4]),
+    .up_wack (up_wack_s[8]),
     .up_rreq (up_rreq),
     .up_raddr (up_raddr),
-    .up_rdata (up_rdata_s[4]),
-    .up_rack (up_rack_s[4]));
+    .up_rdata (up_rdata_s[8]),
+    .up_rack (up_rack_s[8]));
 
 endmodule
 

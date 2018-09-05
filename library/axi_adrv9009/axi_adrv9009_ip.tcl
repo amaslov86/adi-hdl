@@ -50,5 +50,15 @@ ipx::infer_bus_interface adc_clk xilinx.com:signal:clock_rtl:1.0 [ipx::current_c
 ipx::infer_bus_interface adc_os_clk xilinx.com:signal:clock_rtl:1.0 [ipx::current_core]
 ipx::infer_bus_interface dac_clk xilinx.com:signal:clock_rtl:1.0 [ipx::current_core]
 
+set_property widget {comboBox} [ipgui::get_guiparamspec -name "SINGLE_DUAL" -component [ipx::current_core] ]
+set_property value_validation_type list [ipx::get_user_parameters SINGLE_DUAL -of_objects [ipx::current_core]]
+set_property value_validation_list {1 2} [ipx::get_user_parameters SINGLE_DUAL -of_objects [ipx::current_core]]
+
+set_property enablement_dependency \
+  {(spirit:decode(id('MODELPARAM_VALUE.SINGLE_DUAL')) > 1) } \
+  [ipx::get_ports adc_b_* -of_objects [ipx::current_core]] \
+  [ipx::get_ports adc_os_b_* -of_objects [ipx::current_core]] \
+  [ipx::get_ports dac_b_* -of_objects [ipx::current_core]]
+
 ipx::save_core [ipx::current_core]
 
