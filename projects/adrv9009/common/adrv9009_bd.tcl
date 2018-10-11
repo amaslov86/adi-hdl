@@ -1,11 +1,11 @@
 
 # TX parameters
-set TX_NUM_OF_LANES 4      ; # L
+set TX_NUM_OF_LANES 2      ; # L
 set TX_NUM_OF_CONVERTERS 4 ; # M
 set TX_SAMPLES_PER_FRAME 1 ; # S
 set TX_SAMPLE_WIDTH 16     ; # N/NP
 
-set TX_SAMPLES_PER_CHANNEL 2 ; # L * 32 / (M * N)
+set TX_SAMPLES_PER_CHANNEL 1 ; # L * 32 / (M * N)
 
 # RX parameters
 set RX_NUM_OF_LANES 2      ; # L
@@ -18,7 +18,7 @@ set RX_SAMPLES_PER_CHANNEL 1 ; # L * 32 / (M * N)
 # RX Observation parameters
 set RX_OS_NUM_OF_LANES 2      ; # L
 set RX_OS_NUM_OF_CONVERTERS 2 ; # M
-set RX_OS_SAMPLES_PER_FRAME 2 ; # S
+set RX_OS_SAMPLES_PER_FRAME 1 ; # S
 set RX_OS_SAMPLE_WIDTH 16     ; # N/NP
 
 set RX_OS_SAMPLES_PER_CHANNEL 2 ;  # L * 32 / (M * N)
@@ -175,7 +175,7 @@ ad_connect  sys_cpu_resetn util_adrv9009_xcvr/up_rstn
 ad_connect  sys_cpu_clk util_adrv9009_xcvr/up_clk
 
 # Tx 
-ad_xcvrcon  util_adrv9009_xcvr axi_adrv9009_tx_xcvr axi_adrv9009_tx_jesd [lrange {0 3 2 1} 0 [expr $TX_NUM_OF_LANES-1]]
+ad_xcvrcon  util_adrv9009_xcvr axi_adrv9009_tx_xcvr axi_adrv9009_tx_jesd ; # {0 3 2 1} use link remaping from the 9009 xbar
 ad_reconct  util_adrv9009_xcvr/tx_out_clk_0 axi_adrv9009_tx_clkgen/clk
 for {set i 0} {$i < $TX_NUM_OF_LANES} {incr i} {
   ad_connect  axi_adrv9009_tx_clkgen/clk_0 util_adrv9009_xcvr/tx_clk_$i
