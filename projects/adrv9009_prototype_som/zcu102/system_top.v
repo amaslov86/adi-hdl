@@ -59,7 +59,7 @@ module system_top (
   input                   tx_sync_n,
   input                   sysref_p,
   input                   sysref_n,
-  
+
   input       [ 3:0]      rx_data_b_p,
   input       [ 3:0]      rx_data_b_n,
   output      [ 3:0]      tx_data_b_p,
@@ -70,7 +70,7 @@ module system_top (
   output                  rx_os_sync_b_n,
   input                   tx_sync_b_p,
   input                   tx_sync_b_n,
-  
+
   output                  spi_csn_ad9528,
   output                  spi_csn_adrv9009,
   output                  spi_csn_adrv9009_b,
@@ -210,7 +210,7 @@ module system_top (
     .dio_t ({gpio_t[82:32]}),
     .dio_i ({gpio_o[82:32]}),
     .dio_o ({gpio_i[82:32]}),
-    .dio_p ({ 
+    .dio_p ({
               adrv9009_tx1_enable_b,  // 82
               adrv9009_tx2_enable_b,  // 81
               adrv9009_rx1_enable_b,  // 80

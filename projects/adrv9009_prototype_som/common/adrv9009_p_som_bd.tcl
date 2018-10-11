@@ -8,6 +8,7 @@ create_bd_port -dir I dac_fifo_bypass
 # dac peripherals
 
 ad_ip_instance axi_clkgen axi_adrv9009_tx_clkgen
+ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.DEVICE_TYPE 2
 ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.ID 2
 ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.CLKIN_PERIOD 4
 ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.VCO_DIV 1
@@ -15,6 +16,7 @@ ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.VCO_MUL 4
 ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.CLK0_DIV 4
 
 ad_ip_instance axi_adxcvr axi_adrv9009_tx_xcvr
+ad_ip_parameter axi_adrv9009_tx_xcvr CONFIG.XCVR_TYPE 2
 ad_ip_parameter axi_adrv9009_tx_xcvr CONFIG.NUM_OF_LANES 8
 ad_ip_parameter axi_adrv9009_tx_xcvr CONFIG.QPLL_ENABLE 1
 ad_ip_parameter axi_adrv9009_tx_xcvr CONFIG.TX_OR_RX_N 1
@@ -43,6 +45,7 @@ ad_ip_parameter axi_adrv9009_tx_dma CONFIG.AXI_SLICE_DEST true
 # adc peripherals
 
 ad_ip_instance axi_clkgen axi_adrv9009_rx_clkgen
+ad_ip_parameter axi_adrv9009_rx_clkgen CONFIG.DEVICE_TYPE 2
 ad_ip_parameter axi_adrv9009_rx_clkgen CONFIG.ID 2
 ad_ip_parameter axi_adrv9009_rx_clkgen CONFIG.CLKIN_PERIOD 4
 ad_ip_parameter axi_adrv9009_rx_clkgen CONFIG.VCO_DIV 1
@@ -50,6 +53,7 @@ ad_ip_parameter axi_adrv9009_rx_clkgen CONFIG.VCO_MUL 4
 ad_ip_parameter axi_adrv9009_rx_clkgen CONFIG.CLK0_DIV 4
 
 ad_ip_instance axi_adxcvr axi_adrv9009_rx_xcvr
+ad_ip_parameter axi_adrv9009_rx_xcvr CONFIG.XCVR_TYPE 2
 ad_ip_parameter axi_adrv9009_rx_xcvr CONFIG.NUM_OF_LANES 4
 ad_ip_parameter axi_adrv9009_rx_xcvr CONFIG.QPLL_ENABLE 0
 ad_ip_parameter axi_adrv9009_rx_xcvr CONFIG.TX_OR_RX_N 0
@@ -79,6 +83,7 @@ ad_ip_parameter axi_adrv9009_rx_dma CONFIG.AXI_SLICE_DEST true
 # adc-os peripherals
 
 ad_ip_instance axi_clkgen axi_adrv9009_rx_os_clkgen
+ad_ip_parameter axi_adrv9009_rx_os_clkgen CONFIG.DEVICE_TYPE 2
 ad_ip_parameter axi_adrv9009_rx_os_clkgen CONFIG.ID 2
 ad_ip_parameter axi_adrv9009_rx_os_clkgen CONFIG.CLKIN_PERIOD 4
 ad_ip_parameter axi_adrv9009_rx_os_clkgen CONFIG.VCO_DIV 1
@@ -86,6 +91,7 @@ ad_ip_parameter axi_adrv9009_rx_os_clkgen CONFIG.VCO_MUL 4
 ad_ip_parameter axi_adrv9009_rx_os_clkgen CONFIG.CLK0_DIV 4
 
 ad_ip_instance axi_adxcvr axi_adrv9009_rx_os_xcvr
+ad_ip_parameter axi_adrv9009_rx_os_xcvr CONFIG.XCVR_TYPE 2
 ad_ip_parameter axi_adrv9009_rx_os_xcvr CONFIG.NUM_OF_LANES 4
 ad_ip_parameter axi_adrv9009_rx_os_xcvr CONFIG.QPLL_ENABLE 0
 ad_ip_parameter axi_adrv9009_rx_os_xcvr CONFIG.TX_OR_RX_N 0
@@ -118,6 +124,7 @@ ad_ip_instance axi_adrv9009 axi_adrv9009_core
 ad_ip_parameter axi_adrv9009_core CONFIG.SINGLE_DUAL 2
 
 ad_ip_instance util_adxcvr util_adrv9009_p_som_xcvr
+ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.XCVR_TYPE 2
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.RX_NUM_OF_LANES 8
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.TX_NUM_OF_LANES 8
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.TX_OUT_DIV 1
@@ -126,7 +133,8 @@ ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.RX_CLK25_DIV 10
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.TX_CLK25_DIV 10
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.RX_PMA_CFG 0x001E7080
 ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.RX_CDR_CFG 0x0b000023ff10400020
-ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.QPLL_FBDIV 0x080
+ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.QPLL_REFCLK_DIV 1
+ad_ip_parameter util_adrv9009_p_som_xcvr CONFIG.QPLL_FBDIV 40
 
 # xcvr interfaces
 
