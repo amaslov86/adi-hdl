@@ -1,7 +1,7 @@
 
 set dac_fifo_name axi_adrv9009_dacfifo
 set dac_fifo_address_width 10
-set dac_data_width 64     ; # should be 32*L (number of TX lanes)
+set dac_data_width 64     ; # should be TX_TPL_BYTES_PER_BEAT * L (transport layer octets per beat * number of TX lanes)
 set dac_dma_data_width 64
 
 source $ad_hdl_dir/projects/common/zc706/zc706_system_bd.tcl

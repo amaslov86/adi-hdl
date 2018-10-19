@@ -1,11 +1,20 @@
+set LINK_LAYER_BYTES_PER_BEAT 4
+
 
 # TX parameters
-set TX_NUM_OF_LANES 2      ; # L
+set TX_NUM_OF_LANES 1      ; # L
 set TX_NUM_OF_CONVERTERS 4 ; # M
 set TX_SAMPLES_PER_FRAME 1 ; # S
 set TX_SAMPLE_WIDTH 16     ; # N/NP
 
-set TX_SAMPLES_PER_CHANNEL 1 ; # L * 32 / (M * N)
+# F = (M * N * S) / (L * 8)
+set TX_BYTES_PER_FRAME [expr ($TX_NUM_OF_CONVERTERS * $TX_SAMPLE_WIDTH * $TX_SAMPLES_PER_FRAME) / ($TX_NUM_OF_LANES * 8)];
+# one beat per lane must accommodate at least one frame
+set TX_TPL_BYTES_PER_BEAT [expr max($TX_BYTES_PER_FRAME, $LINK_LAYER_BYTES_PER_BEAT)]
+
+# datapath width = L * 8 * TPL_BYTES_PER_BEAT / (M * N)
+set TX_SAMPLES_PER_CHANNEL [expr ($TX_NUM_OF_LANES * 8 * $TX_TPL_BYTES_PER_BEAT) / ($TX_NUM_OF_CONVERTERS * $TX_SAMPLE_WIDTH)];
+
 
 # RX parameters
 set RX_NUM_OF_LANES 2      ; # L
@@ -37,6 +46,16 @@ ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.CLKIN_PERIOD 4
 ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.VCO_DIV 1
 ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.VCO_MUL 4
 ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.CLK0_DIV 4
+# When F = 8 add a second clock to drive the transport layer with a 2x slower clock
+if {$TX_TPL_BYTES_PER_BEAT > $LINK_LAYER_BYTES_PER_BEAT} {
+  ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.ENABLE_CLKOUT1 1
+  ad_ip_parameter axi_adrv9009_tx_clkgen CONFIG.CLK1_DIV 8
+  set tx_link_clk axi_adrv9009_tx_clkgen/clk_0
+  set tx_data_clk axi_adrv9009_tx_clkgen/clk_1
+} else {
+  set tx_link_clk axi_adrv9009_tx_clkgen/clk_0
+  set tx_data_clk axi_adrv9009_tx_clkgen/clk_0
+}
 
 ad_ip_instance axi_adxcvr axi_adrv9009_tx_xcvr
 ad_ip_parameter axi_adrv9009_tx_xcvr CONFIG.NUM_OF_LANES $TX_NUM_OF_LANES
@@ -53,6 +72,7 @@ ad_ip_instance ad_ip_jesd204_tpl_dac tx_adrv9009_tpl_core [list \
   SAMPLES_PER_FRAME $TX_SAMPLES_PER_FRAME \
   CONVERTER_RESOLUTION $TX_SAMPLE_WIDTH \
   BITS_PER_SAMPLE $TX_SAMPLE_WIDTH  \
+  OCTETS_PER_BEAT $TX_TPL_BYTES_PER_BEAT \
  ]
 
 ad_ip_instance axi_dmac axi_adrv9009_tx_dma
@@ -174,16 +194,16 @@ set rx_obs_ref_clk rx_ref_clk_2
 ad_connect  sys_cpu_resetn util_adrv9009_xcvr/up_rstn
 ad_connect  sys_cpu_clk util_adrv9009_xcvr/up_clk
 
-# Tx 
+# Tx
 ad_xcvrcon  util_adrv9009_xcvr axi_adrv9009_tx_xcvr axi_adrv9009_tx_jesd ; # {0 3 2 1} use link remaping from the 9009 xbar
 ad_reconct  util_adrv9009_xcvr/tx_out_clk_0 axi_adrv9009_tx_clkgen/clk
 for {set i 0} {$i < $TX_NUM_OF_LANES} {incr i} {
-  ad_connect  axi_adrv9009_tx_clkgen/clk_0 util_adrv9009_xcvr/tx_clk_$i
+  ad_connect  $tx_link_clk util_adrv9009_xcvr/tx_clk_$i
 }
 ad_xcvrpll  tx_ref_clk_0 util_adrv9009_xcvr/qpll_ref_clk_0
 ad_xcvrpll  axi_adrv9009_tx_xcvr/up_pll_rst util_adrv9009_xcvr/up_qpll_rst_0
-ad_connect  axi_adrv9009_tx_clkgen/clk_0 axi_adrv9009_tx_jesd/device_clk
-ad_connect  axi_adrv9009_tx_clkgen/clk_0 axi_adrv9009_tx_jesd_rstgen/slowest_sync_clk
+ad_connect  $tx_link_clk axi_adrv9009_tx_jesd/device_clk
+ad_connect  $tx_link_clk axi_adrv9009_tx_jesd_rstgen/slowest_sync_clk
 
 # Rx
 ad_xcvrcon  util_adrv9009_xcvr axi_adrv9009_rx_xcvr axi_adrv9009_rx_jesd
@@ -219,8 +239,23 @@ ad_connect  sys_dma_resetn sys_dma_rstgen/peripheral_aresetn
 ad_connect  sys_dma_reset sys_dma_rstgen/peripheral_reset
 
 # connections (dac)
-ad_connect axi_adrv9009_tx_clkgen/clk_0 tx_adrv9009_tpl_core/link_clk
-ad_connect axi_adrv9009_tx_jesd/tx_data tx_adrv9009_tpl_core/link
+ad_connect $tx_data_clk tx_adrv9009_tpl_core/link_clk
+
+if {$TX_TPL_BYTES_PER_BEAT > $LINK_LAYER_BYTES_PER_BEAT} {
+  ad_ip_instance ad_ip_jesd204_link_upconv tx_link_upconverter [list\
+    NUM_LANES $TX_NUM_OF_LANES \
+    OCTETS_PER_BEAT_IN $TX_TPL_BYTES_PER_BEAT \
+    OCTETS_PER_BEAT_OUT $LINK_LAYER_BYTES_PER_BEAT \
+  ]
+  ad_connect tx_link_upconverter/in_link_clk $tx_data_clk
+  ad_connect tx_link_upconverter/out_link_clk $tx_link_clk
+
+  ad_connect tx_adrv9009_tpl_core/link tx_link_upconverter/in_link
+  ad_connect tx_link_upconverter/out_link axi_adrv9009_tx_jesd/tx_data
+
+} else {
+  ad_connect axi_adrv9009_tx_jesd/tx_data tx_adrv9009_tpl_core/link
+}
 
 if {$TX_NUM_OF_CONVERTERS > 1} {
   #connect FIFO to TPL through upack
@@ -228,7 +263,7 @@ if {$TX_NUM_OF_CONVERTERS > 1} {
   ad_ip_parameter util_adrv9009_tx_upack CONFIG.CHANNEL_DATA_WIDTH [expr $TX_SAMPLE_WIDTH*$TX_SAMPLES_PER_CHANNEL]
   ad_ip_parameter util_adrv9009_tx_upack CONFIG.NUM_OF_CHANNELS $TX_NUM_OF_CONVERTERS
 
-  ad_connect axi_adrv9009_tx_clkgen/clk_0 util_adrv9009_tx_upack/dac_clk
+  ad_connect $tx_data_clk util_adrv9009_tx_upack/dac_clk
 
   ad_ip_instance xlconcat adrv9009_tx_data_concat
   ad_ip_parameter adrv9009_tx_data_concat CONFIG.NUM_PORTS $TX_NUM_OF_CONVERTERS
@@ -263,7 +298,7 @@ if {$TX_NUM_OF_CONVERTERS > 1} {
 ad_connect tx_adrv9009_tpl_core/dac_dunf axi_adrv9009_dacfifo/dac_dunf
 
 
-ad_connect axi_adrv9009_tx_clkgen/clk_0 axi_adrv9009_dacfifo/dac_clk
+ad_connect $tx_data_clk axi_adrv9009_dacfifo/dac_clk
 ad_connect axi_adrv9009_tx_jesd_rstgen/peripheral_reset axi_adrv9009_dacfifo/dac_rst
 ad_connect sys_dma_clk axi_adrv9009_dacfifo/dma_clk
 ad_connect sys_dma_reset axi_adrv9009_dacfifo/dma_rst

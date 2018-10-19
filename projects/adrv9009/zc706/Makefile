@@ -22,6 +22,7 @@ LIB_DEPS += jesd204/axi_jesd204_rx
 LIB_DEPS += jesd204/axi_jesd204_tx
 LIB_DEPS += jesd204/jesd204_rx
 LIB_DEPS += jesd204/jesd204_tx
+LIB_DEPS += jesd204/ad_ip_jesd204_link_upconv
 LIB_DEPS += jesd204/ad_ip_jesd204_tpl_dac
 LIB_DEPS += jesd204/ad_ip_jesd204_tpl_adc
 LIB_DEPS += util_cpack
