@@ -231,6 +231,73 @@ proc p_ad_ip_jesd204_tpl_adc_validate {} {
 
 }
 
+# We don't expect too large values for a and b, trivial implementation will do
+proc gcd {a b} {
+  if {$a == $b} {
+    return $b
+  } elseif {$a > $b} {
+    return [gcd [expr $a - $b] $b]
+  } else {
+    return [gcd $a [expr $b - $a]]
+  }
+}
+
+# validate
+
+proc p_ad_ip_jesd204_tpl_adc_validate {} {
+  set L [get_parameter_value "NUM_LANES"]
+  set M [get_parameter_value "NUM_CHANNELS"]
+  set NP [get_parameter_value "BITS_PER_SAMPLE"]
+  set N [get_parameter_value "CONVERTER_RESOLUTION"]
+  set S_manual [get_parameter_value "SAMPLES_PER_FRAME_MANUAL"]
+  set enable_S_manual [get_parameter_value "ENABLE_SAMPLES_PER_FRAME_MANUAL"]
+
+  # With fixed values for M, L and N' all valid values for S and F have a
+  # constant ratio of S / F. Choose a ratio so that S and F are co-prime.
+  # Choosing values for F and S that have a common factor has higher latency
+  # and no added benefits.
+  #
+  # Since converters often support those higher latency modes still allow a
+  # manual override of the S parameter in case somebody wants to use those modes
+  # anyway.
+  #
+  # To be able to set samples per frame manually ENABLE_SAMPLES_PER_FRAME_MANUAL
+  # needs to be set to true and SAMPLES_PER_FRAME_MANUAL to the desired value.
+  #
+  # When manual sample per frame selection is enabled still verify that the
+  # selected value is valid.
+
+  set S_min [expr $L * 8]
+  set F_min [expr $M * $NP]
+  set common_factor [gcd $S_min $F_min]
+  set S_min [expr $S_min / $common_factor]
+  set F_min [expr $F_min / $common_factor]
+
+  if {$enable_S_manual} {
+    if {$S_manual % $S_min != 0} {
+      send_message ERROR "For framer configuration (L=$L, M=$M, NP=$NP) samples per frame (S) must be an integer multiple of $S_min"
+      set S $S_min
+      set F $F_min
+    } else {
+      set S $S_manual
+      set F [expr $S_manual * $M * $NP / $L / 8]
+    }
+  } else {
+    set S $S_min
+    set F $F_min
+  }
+
+  set_parameter_value OCTETS_PER_FRAME $F
+  set_parameter_value SAMPLES_PER_FRAME $S
+
+  set_parameter_property SAMPLES_PER_FRAME VISIBLE [expr !$enable_S_manual]
+  set_parameter_property SAMPLES_PER_FRAME_MANUAL VISIBLE $enable_S_manual
+
+  set_parameter_value SAMPLES_PER_CHANNEL [expr 4 * $S / $F]
+  set_parameter_value CHANNEL_DATA_WIDTH [expr 16 * (4 * $S / $F)]
+
+}
+
 # elaborate
 
 proc p_ad_ip_jesd204_tpl_adc_elab {} {
