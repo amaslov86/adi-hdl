@@ -72,14 +72,10 @@ ad_ip_parameter axi_adrv9009_tx_xcvr CONFIG.OUT_CLK_SEL 3
 
 adi_axi_jesd204_tx_create axi_adrv9009_tx_jesd $TX_NUM_OF_LANES
 
-ad_ip_instance ad_ip_jesd204_tpl_dac tx_adrv9009_tpl_core [list \
-  NUM_LANES $TX_NUM_OF_LANES \
-  NUM_CHANNELS $TX_NUM_OF_CONVERTERS \
-  SAMPLES_PER_FRAME $TX_SAMPLES_PER_FRAME \
-  CONVERTER_RESOLUTION $TX_SAMPLE_WIDTH \
-  BITS_PER_SAMPLE $TX_SAMPLE_WIDTH  \
-  OCTETS_PER_BEAT $TX_TPL_BYTES_PER_BEAT \
- ]
+adi_tpl_jesd204_tx_create tx_adrv9009_tpl_core $TX_NUM_OF_LANES \
+                                               $TX_NUM_OF_CONVERTERS \
+                                               $TX_SAMPLES_PER_FRAME \
+                                               $TX_SAMPLE_WIDTH
 
 ad_ip_instance axi_dmac axi_adrv9009_tx_dma
 ad_ip_parameter axi_adrv9009_tx_dma CONFIG.DMA_TYPE_SRC 0
@@ -122,14 +118,11 @@ ad_ip_parameter axi_adrv9009_rx_xcvr CONFIG.OUT_CLK_SEL 3
 
 adi_axi_jesd204_rx_create axi_adrv9009_rx_jesd $RX_NUM_OF_LANES
 
-ad_ip_instance ad_ip_jesd204_tpl_adc rx_adrv9009_tpl_core [list \
-  NUM_LANES $RX_NUM_OF_LANES \
-  NUM_CHANNELS $RX_NUM_OF_CONVERTERS \
-  SAMPLES_PER_FRAME $RX_SAMPLES_PER_FRAME \
-  CONVERTER_RESOLUTION $RX_SAMPLE_WIDTH \
-  BITS_PER_SAMPLE $RX_SAMPLE_WIDTH  \
-  OCTETS_PER_BEAT $RX_TPL_BYTES_PER_BEAT \
-]
+
+adi_tpl_jesd204_rx_create rx_adrv9009_tpl_core $RX_NUM_OF_LANES \
+                                               $RX_NUM_OF_CONVERTERS \
+                                               $RX_SAMPLES_PER_FRAME \
+                                               $RX_SAMPLE_WIDTH
 
 ad_ip_instance axi_dmac axi_adrv9009_rx_dma
 ad_ip_parameter axi_adrv9009_rx_dma CONFIG.DMA_TYPE_SRC 2
@@ -163,14 +156,10 @@ ad_ip_parameter axi_adrv9009_rx_os_xcvr CONFIG.OUT_CLK_SEL 3
 
 adi_axi_jesd204_rx_create axi_adrv9009_rx_os_jesd $RX_OS_NUM_OF_LANES
 
-ad_ip_instance ad_ip_jesd204_tpl_adc rx_os_adrv9009_tpl_core [list \
-  NUM_LANES $RX_OS_NUM_OF_LANES \
-  NUM_CHANNELS $RX_OS_NUM_OF_CONVERTERS \
-  SAMPLES_PER_FRAME $RX_OS_SAMPLES_PER_FRAME \
-  CONVERTER_RESOLUTION $RX_OS_SAMPLE_WIDTH \
-  BITS_PER_SAMPLE $RX_OS_SAMPLE_WIDTH  \
-  OCTETS_PER_BEAT 4 \
-]
+adi_tpl_jesd204_rx_create rx_os_adrv9009_tpl_core $RX_OS_NUM_OF_LANES \
+                                                  $RX_OS_NUM_OF_CONVERTERS \
+                                                  $RX_OS_SAMPLES_PER_FRAME \
+                                                  $RX_OS_SAMPLE_WIDTH
 
 ad_ip_instance axi_dmac axi_adrv9009_rx_os_dma
 ad_ip_parameter axi_adrv9009_rx_os_dma CONFIG.DMA_TYPE_SRC 2
@@ -287,37 +276,20 @@ if {$TX_NUM_OF_CONVERTERS > 1} {
 
   ad_connect $tx_data_clk util_adrv9009_tx_upack/dac_clk
 
-  ad_ip_instance xlconcat adrv9009_tx_data_concat
-  ad_ip_parameter adrv9009_tx_data_concat CONFIG.NUM_PORTS $TX_NUM_OF_CONVERTERS
-
   for {set i 0} {$i < $TX_NUM_OF_CONVERTERS} {incr i} {
-    ad_ip_instance xlslice adrv9009_enable_slice_$i [list \
-      DIN_WIDTH $TX_NUM_OF_CONVERTERS \
-      DIN_FROM $i \
-      DIN_TO $i \
-    ]
-    ad_ip_instance xlslice adrv9009_valid_slice_$i [list \
-      DIN_WIDTH $TX_NUM_OF_CONVERTERS \
-      DIN_FROM $i \
-      DIN_TO $i \
-    ]
-    ad_connect tx_adrv9009_tpl_core/enable adrv9009_enable_slice_$i/Din
-    ad_connect tx_adrv9009_tpl_core/dac_valid adrv9009_valid_slice_$i/Din
-
-    ad_connect adrv9009_enable_slice_$i/Dout util_adrv9009_tx_upack/dac_enable_$i
-    ad_connect adrv9009_valid_slice_$i/Dout util_adrv9009_tx_upack/dac_valid_$i
-    ad_connect util_adrv9009_tx_upack/dac_data_$i adrv9009_tx_data_concat/In$i
-
+    ad_connect util_adrv9009_tx_upack/dac_data_$i tx_adrv9009_tpl_core/dac_data_$i
+    ad_connect tx_adrv9009_tpl_core/dac_valid_$i util_adrv9009_tx_upack/dac_valid_$i
+    ad_connect tx_adrv9009_tpl_core/dac_enable_$i  util_adrv9009_tx_upack/dac_enable_$i
   }
-  ad_connect tx_adrv9009_tpl_core/dac_ddata adrv9009_tx_data_concat/dout
+
   ad_connect util_adrv9009_tx_upack/dac_valid axi_adrv9009_dacfifo/dac_valid
   ad_connect util_adrv9009_tx_upack/dac_data axi_adrv9009_dacfifo/dac_data
 } else {
   #connect FIFO to TPL directly
-  ad_connect tx_adrv9009_tpl_core/dac_valid axi_adrv9009_dacfifo/dac_valid
-  ad_connect tx_adrv9009_tpl_core/dac_ddata axi_adrv9009_dacfifo/dac_data
+  ad_connect tx_adrv9009_tpl_core/dac_valid_0 axi_adrv9009_dacfifo/dac_valid
+  ad_connect tx_adrv9009_tpl_core/dac_data_0 axi_adrv9009_dacfifo/dac_data
 }
-ad_connect tx_adrv9009_tpl_core/dac_dunf axi_adrv9009_dacfifo/dac_dunf
+ad_connect axi_adrv9009_dacfifo/dac_dunf tx_adrv9009_tpl_core/dac_dunf
 
 
 ad_connect $tx_data_clk axi_adrv9009_dacfifo/dac_clk
@@ -374,31 +346,10 @@ if {$RX_NUM_OF_CONVERTERS > 1} {
   ad_connect  axi_adrv9009_rx_jesd_rstgen/peripheral_reset util_adrv9009_rx_cpack/adc_rst
 
   for {set i 0} {$i < $RX_NUM_OF_CONVERTERS} {incr i} {
-    ad_ip_instance xlslice adrv9009_rx_data_slice_$i [list \
-      DIN_WIDTH [expr $RX_SAMPLE_WIDTH*$RX_SAMPLES_PER_CHANNEL*$RX_NUM_OF_CONVERTERS] \
-      DIN_FROM [expr $RX_SAMPLE_WIDTH*$RX_SAMPLES_PER_CHANNEL*($i+1)-1] \
-      DIN_TO [expr $RX_SAMPLE_WIDTH*$RX_SAMPLES_PER_CHANNEL*$i] \
-    ]
 
-    ad_ip_instance xlslice adrv9009_rx_enable_slice_$i [list \
-      DIN_WIDTH $RX_NUM_OF_CONVERTERS \
-      DIN_FROM $i \
-      DIN_TO $i \
-    ]
-
-    ad_ip_instance xlslice adrv9009_rx_valid_slice_$i [list \
-      DIN_WIDTH $RX_NUM_OF_CONVERTERS \
-      DIN_FROM $i \
-      DIN_TO $i \
-    ]
-
-    ad_connect rx_adrv9009_tpl_core/adc_data adrv9009_rx_data_slice_$i/Din
-    ad_connect rx_adrv9009_tpl_core/enable adrv9009_rx_enable_slice_$i/Din
-    ad_connect rx_adrv9009_tpl_core/adc_valid adrv9009_rx_valid_slice_$i/Din
-
-    ad_connect adrv9009_rx_data_slice_$i/Dout util_adrv9009_rx_cpack/adc_data_$i
-    ad_connect adrv9009_rx_enable_slice_$i/Dout util_adrv9009_rx_cpack/adc_enable_$i
-    ad_connect adrv9009_rx_valid_slice_$i/Dout util_adrv9009_rx_cpack/adc_valid_$i
+    ad_connect rx_adrv9009_tpl_core/adc_data_$i util_adrv9009_rx_cpack/adc_data_$i
+    ad_connect rx_adrv9009_tpl_core/adc_enable_$i util_adrv9009_rx_cpack/adc_enable_$i
+    ad_connect rx_adrv9009_tpl_core/adc_valid_$i util_adrv9009_rx_cpack/adc_valid_$i
   }
 
   ad_connect  util_adrv9009_rx_cpack/adc_valid axi_adrv9009_rx_dma/fifo_wr_en
@@ -407,8 +358,8 @@ if {$RX_NUM_OF_CONVERTERS > 1} {
 
 } else {
   #connect DMA to TPL directly
-  ad_connect rx_adrv9009_tpl_core/adc_valid axi_adrv9009_rx_dma/fifo_wr_en
-  ad_connect rx_adrv9009_tpl_core/adc_data axi_adrv9009_rx_dma/fifo_wr_din
+  ad_connect rx_adrv9009_tpl_core/adc_valid_0 axi_adrv9009_rx_dma/fifo_wr_en
+  ad_connect rx_adrv9009_tpl_core/adc_data_0 axi_adrv9009_rx_dma/fifo_wr_din
 }
 ad_connect  axi_adrv9009_rx_dma/fifo_wr_overflow rx_adrv9009_tpl_core/adc_dovf
 ad_connect  $rx_data_clk axi_adrv9009_rx_dma/fifo_wr_clk
@@ -432,30 +383,11 @@ if {$RX_OS_NUM_OF_CONVERTERS > 1} {
   ad_connect  axi_adrv9009_rx_os_jesd_rstgen/peripheral_reset util_adrv9009_rx_os_cpack/adc_rst
 
   for {set i 0} {$i < $RX_OS_NUM_OF_CONVERTERS} {incr i} {
-    ad_ip_instance xlslice adrv9009_rx_os_data_slice_$i [list \
-      DIN_WIDTH [expr $RX_OS_SAMPLE_WIDTH*$RX_OS_SAMPLES_PER_CHANNEL*$RX_OS_NUM_OF_CONVERTERS] \
-      DIN_FROM [expr $RX_OS_SAMPLE_WIDTH*$RX_OS_SAMPLES_PER_CHANNEL*($i+1)-1] \
-      DIN_TO [expr $RX_OS_SAMPLE_WIDTH*$RX_OS_SAMPLES_PER_CHANNEL*$i] \
-    ]
-    ad_ip_instance xlslice adrv9009_rx_os_enable_slice_$i [list \
-      DIN_WIDTH $RX_OS_NUM_OF_CONVERTERS \
-      DIN_FROM $i \
-      DIN_TO $i \
-    ]
 
-    ad_ip_instance xlslice adrv9009_rx_os_valid_slice_$i [list \
-      DIN_WIDTH $RX_OS_NUM_OF_CONVERTERS \
-      DIN_FROM $i \
-      DIN_TO $i \
-    ]
+    ad_connect rx_os_adrv9009_tpl_core/adc_data_$i util_adrv9009_rx_os_cpack/adc_data_$i
+    ad_connect rx_os_adrv9009_tpl_core/adc_enable_$i util_adrv9009_rx_os_cpack/adc_enable_$i
+    ad_connect rx_os_adrv9009_tpl_core/adc_valid_$i util_adrv9009_rx_os_cpack/adc_valid_$i
 
-    ad_connect rx_os_adrv9009_tpl_core/adc_data adrv9009_rx_os_data_slice_$i/Din
-    ad_connect rx_os_adrv9009_tpl_core/enable adrv9009_rx_os_enable_slice_$i/Din
-    ad_connect rx_os_adrv9009_tpl_core/adc_valid adrv9009_rx_os_valid_slice_$i/Din
-
-    ad_connect adrv9009_rx_os_data_slice_$i/Dout util_adrv9009_rx_os_cpack/adc_data_$i
-    ad_connect adrv9009_rx_os_enable_slice_$i/Dout util_adrv9009_rx_os_cpack/adc_enable_$i
-    ad_connect adrv9009_rx_os_valid_slice_$i/Dout util_adrv9009_rx_os_cpack/adc_valid_$i
   }
   ad_connect  util_adrv9009_rx_os_cpack/adc_valid axi_adrv9009_rx_os_dma/fifo_wr_en
   ad_connect  util_adrv9009_rx_os_cpack/adc_sync axi_adrv9009_rx_os_dma/fifo_wr_sync
@@ -463,8 +395,8 @@ if {$RX_OS_NUM_OF_CONVERTERS > 1} {
 
 } else {
   #connect DMA to TPL directly
-  ad_connect rx_os_adrv9009_tpl_core/adc_valid axi_adrv9009_rx_os_dma/fifo_wr_en
-  ad_connect rx_os_adrv9009_tpl_core/adc_data axi_adrv9009_rx_os_dma/fifo_wr_din
+  ad_connect rx_os_adrv9009_tpl_core/adc_valid_0 axi_adrv9009_rx_os_dma/fifo_wr_en
+  ad_connect rx_os_adrv9009_tpl_core/adc_data_0 axi_adrv9009_rx_os_dma/fifo_wr_din
 }
 ad_connect  axi_adrv9009_rx_os_dma/fifo_wr_overflow rx_os_adrv9009_tpl_core/adc_dovf
 ad_connect  axi_adrv9009_rx_os_clkgen/clk_0 axi_adrv9009_rx_os_dma/fifo_wr_clk
