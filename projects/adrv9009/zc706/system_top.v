@@ -153,8 +153,8 @@ module system_top (
   input                   ref_clk0_n,
   input                   ref_clk1_p,
   input                   ref_clk1_n,
-  input       [ 3:0]      rx_data_p,
-  input       [ 3:0]      rx_data_n,
+  input       [ 1:0]      rx_data_p,
+  input       [ 1:0]      rx_data_n,
   output      [ 1:0]      tx_data_p,
   output      [ 1:0]      tx_data_n,
   output                  rx_sync_p,
@@ -235,7 +235,7 @@ module system_top (
   wire            ref_clk0;
   wire            ref_clk1;
   wire            rx_sync;
-  wire            rx_os_sync;
+  wire            rx_os_sync = 1'b0;
   wire            tx_sync;
   wire            tx_sync_1;
   wire            sysref;
@@ -382,16 +382,16 @@ module system_top (
     .rx_data_0_p (rx_data_p[0]),
     .rx_data_1_n (rx_data_n[1]),
     .rx_data_1_p (rx_data_p[1]),
-    .rx_data_2_n (rx_data_n[2]),
-    .rx_data_2_p (rx_data_p[2]),
-    .rx_data_3_n (rx_data_n[3]),
-    .rx_data_3_p (rx_data_p[3]),
+    //.rx_data_2_n (rx_data_n[2]),
+    //.rx_data_2_p (rx_data_p[2]),
+    //.rx_data_3_n (rx_data_n[3]),
+    //.rx_data_3_p (rx_data_p[3]),
     .rx_ref_clk_0 (ref_clk1),
-    .rx_ref_clk_2 (ref_clk1),
+    //.rx_ref_clk_2 (ref_clk1),
     .rx_sync_0 (rx_sync),
-    .rx_sync_2 (rx_os_sync),
+    //.rx_sync_2 (rx_os_sync),
     .rx_sysref_0 (sysref),
-    .rx_sysref_2 (sysref),
+    //.rx_sysref_2 (sysref),
     .spdif (spdif),
     .spi0_clk_i (spi_clk),
     .spi0_clk_o (spi_clk),
