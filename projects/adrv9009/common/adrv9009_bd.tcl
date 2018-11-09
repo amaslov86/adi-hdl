@@ -151,14 +151,14 @@ ad_ip_parameter axi_adrv9009_rx_dma CONFIG.AXI_SLICE_SRC true
 ad_ip_instance util_adxcvr util_adrv9009_xcvr
 ad_ip_parameter util_adrv9009_xcvr CONFIG.RX_NUM_OF_LANES [expr $RX_NUM_OF_LANES+$RX_OS_NUM_OF_LANES]
 ad_ip_parameter util_adrv9009_xcvr CONFIG.TX_NUM_OF_LANES $TX_NUM_OF_LANES
-ad_ip_parameter util_adrv9009_xcvr CONFIG.TX_OUT_DIV 1
+ad_ip_parameter util_adrv9009_xcvr CONFIG.TX_OUT_DIV 2
 ad_ip_parameter util_adrv9009_xcvr CONFIG.CPLL_FBDIV 4
 ad_ip_parameter util_adrv9009_xcvr CONFIG.CPLL_FBDIV_4_5 5
-ad_ip_parameter util_adrv9009_xcvr CONFIG.RX_CLK25_DIV 10
-ad_ip_parameter util_adrv9009_xcvr CONFIG.TX_CLK25_DIV 10
+ad_ip_parameter util_adrv9009_xcvr CONFIG.RX_CLK25_DIV 5
+ad_ip_parameter util_adrv9009_xcvr CONFIG.TX_CLK25_DIV 5
 ad_ip_parameter util_adrv9009_xcvr CONFIG.RX_PMA_CFG 0x001E7080
 ad_ip_parameter util_adrv9009_xcvr CONFIG.RX_CDR_CFG 0x0b000023ff10400020
-ad_ip_parameter util_adrv9009_xcvr CONFIG.QPLL_FBDIV 80
+ad_ip_parameter util_adrv9009_xcvr CONFIG.QPLL_FBDIV 0x120
 
 # xcvr interfaces
 
