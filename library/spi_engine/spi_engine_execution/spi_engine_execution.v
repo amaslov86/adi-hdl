@@ -93,66 +93,53 @@ localparam BIT_COUNTER_WIDTH = DATA_WIDTH > 16 ? 5 :
 localparam BIT_COUNTER_CARRY = 2** (BIT_COUNTER_WIDTH + 1);
 localparam BIT_COUNTER_CLEAR = {{8{1'b1}}, {BIT_COUNTER_WIDTH{1'b0}}, 1'b1};
 
-reg sclk_int = 1'b0;
-wire sdo_int_s;
-reg sdo_t_int = 1'b0;
-
 reg idle;
-
+reg sclk_int = 1'b0;
+reg sdo_t_int = 1'b0;
 reg [7:0] clk_div_counter = 'h00;
-reg [7:0] clk_div_counter_next = 'h00;
 reg clk_div_last;
-
 reg [(BIT_COUNTER_WIDTH+8):0] counter = 'h00;
+reg trigger = 1'b0;
+reg wait_for_io = 1'b0;
+reg transfer_active = 1'b0;
+reg last_transfer;
+reg [7:0] word_length = DATA_WIDTH;
+reg [7:0] left_aligned = 8'b0;
+reg [7:0] sdi_counter = 8'b0;
+reg [15:0] cmd_d1;
+reg cpha = DEFAULT_SPI_CFG[0];
+reg cpol = DEFAULT_SPI_CFG[1];
+reg [7:0] clk_div = DEFAULT_CLK_DIV;
 
+reg [(DATA_WIDTH-1):0] data_sdo_shift = 'h0;
+
+reg [4:0] trigger_rx_d = 5'b0;
+
+wire sdo_int_s;
 wire [7:0] sleep_counter = counter[(BIT_COUNTER_WIDTH+8):(BIT_COUNTER_WIDTH+1)];
 wire [1:0] cs_sleep_counter = counter[(BIT_COUNTER_WIDTH+2):(BIT_COUNTER_WIDTH+1)];
 wire [2:0] cs_sleep_counter2 = counter[(BIT_COUNTER_WIDTH+3):(BIT_COUNTER_WIDTH+1)];
 wire [(BIT_COUNTER_WIDTH-1):0] bit_counter = counter[BIT_COUNTER_WIDTH:1];
 wire [7:0] transfer_counter = counter[(BIT_COUNTER_WIDTH+8):(BIT_COUNTER_WIDTH+1)];
 wire ntx_rx = counter[0];
-
-reg trigger = 1'b0;
-reg trigger_next = 1'b0;
-reg wait_for_io = 1'b0;
-reg transfer_active = 1'b0;
-
 wire last_bit;
 wire first_bit;
-reg last_transfer;
-reg [7:0] word_length = DATA_WIDTH;
-reg [7:0] left_aligned = 8'b0;
 wire end_of_word;
-
-reg [7:0] sdi_counter = 8'b0;
-
-assign first_bit = ((bit_counter == 'h0) ||  (bit_counter == word_length));
-assign last_bit = bit_counter == word_length - 1;
-assign end_of_word = last_bit == 1'b1 && ntx_rx == 1'b1 && clk_div_last == 1'b1;
-
-reg [15:0] cmd_d1;
-
-reg cpha = DEFAULT_SPI_CFG[0];
-reg cpol = DEFAULT_SPI_CFG[1];
-reg [7:0] clk_div = DEFAULT_CLK_DIV;
-
 wire sdo_enabled = cmd_d1[8];
 wire sdi_enabled = cmd_d1[9];
-
-reg [(DATA_WIDTH-1):0] data_sdo_shift = 'h0;
-
-reg [4:0] trigger_rx_d = 5'b0;
-
 wire [1:0] inst = cmd[13:12];
 wire [1:0] inst_d1 = cmd_d1[13:12];
-
 wire exec_cmd = cmd_ready && cmd_valid;
 wire exec_transfer_cmd = exec_cmd && inst == CMD_TRANSFER;
-
 wire exec_write_cmd = exec_cmd && inst == CMD_WRITE;
 wire exec_chipselect_cmd = exec_cmd && inst == CMD_CHIPSELECT;
 wire exec_misc_cmd = exec_cmd && inst == CMD_MISC;
 wire exec_sync_cmd = exec_misc_cmd && cmd[8] == MISC_SYNC;
+wire last_sdi_bit = (sdi_counter == word_length-1);
+
+assign first_bit = ((bit_counter == 'h0) ||  (bit_counter == word_length));
+assign last_bit = bit_counter == word_length - 1;
+assign end_of_word = last_bit == 1'b1 && ntx_rx == 1'b1 && clk_div_last == 1'b1;
 
 wire trigger_tx;
 wire trigger_rx;
@@ -168,6 +155,8 @@ wire trigger_rx_s;
 wire last_sdi_bit;
 
 assign cmd_ready = idle;
+assign sdo_int_s = data_sdo_shift[DATA_WIDTH-1];
+assign sync = cmd_d1[7:0];
 
 always @(posedge clk) begin
   if (cmd_ready)
@@ -300,8 +289,6 @@ always @(posedge clk) begin
   end
 end
 
-assign sync = cmd_d1[7:0];
-
 always @(posedge clk) begin
   if (resetn == 1'b0)
     sdo_data_ready <= 1'b0;
@@ -421,6 +408,7 @@ generate
 endgenerate
 
 assign last_sdi_bit = (sdi_counter == word_length-1);
+
 always @(posedge clk) begin
   if (resetn == 1'b0) begin
     sdi_counter <= 8'b0;
