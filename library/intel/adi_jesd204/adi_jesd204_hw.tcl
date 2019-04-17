@@ -167,7 +167,7 @@ proc create_phy_reset_control {tx num_of_lanes sysclk_frequency} {
   }
 }
 
-proc create_lane_pll {id pllclk_frequency refclk_frequency num_lanes} {
+proc create_lane_pll {id tx_or_rx_n pllclk_frequency refclk_frequency num_lanes} {
 
   global version
 
@@ -450,13 +450,15 @@ proc jesd204_compose {} {
     set_interface_property link_clk EXPORT_OF link_clock.out_clk
   }
 
+  set phy_reset_intfs_s10 {analogreset_stat digitalreset_stat}
+
   if {$tx_or_rx_n} {
     set tx_rx "tx"
     set data_direction sink
     set jesd204_intfs {config control ilas_config event status}
     set phy_reset_intfs {analogreset digitalreset cal_busy}
 
-    create_lane_pll $id $pllclk_frequency $refclk_frequency $num_of_lanes
+    create_lane_pll $id $tx_or_rx_n $pllclk_frequency $refclk_frequency $num_of_lanes
     add_connection lane_pll.tx_serial_clk phy.serial_clk_x1
     if {$num_of_lanes > 6} {
       add_connection lane_pll.mcgb_serial_clk phy.serial_clk_xN
@@ -496,6 +498,14 @@ proc jesd204_compose {} {
 
   foreach intf $phy_reset_intfs {
     add_connection phy_reset_control.${tx_rx}_${intf} phy.${intf}
+  }
+
+  ## connect phy_reset_control interfaces specific to Stratix 10
+  if {$device_type == 2} {
+    foreach intf $phy_reset_intfs_s10 {
+      add_connection phy_reset_control.${tx_rx}_${intf} phy.${intf}
+    }
+
   }
 
   set lane_map [regexp -all -inline {\S+} $lane_map]

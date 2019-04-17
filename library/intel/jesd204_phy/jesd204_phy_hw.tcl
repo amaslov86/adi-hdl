@@ -228,6 +228,15 @@ proc jesd204_phy_composition_callback {} {
       add_connection phy_glue.phy_tx_datak native_phy.tx_datak
       add_connection phy_glue.phy_tx_polinv native_phy.tx_polinv
     }
+
+    ## Startix 10
+    if {$device_type == 2} {
+      foreach x {analogreset_stat digitalreset_stat} {
+        add_interface ${x} conduit end
+        set_interface_property ${x} EXPORT_OF native_phy.tx_${x}
+      }
+    }
+
   } else {
 
     add_interface ref_clk clock sink
@@ -255,6 +264,15 @@ proc jesd204_phy_composition_callback {} {
       }
       add_connection phy_glue.phy_rx_polinv native_phy.rx_polinv
     }
+
+    ## Startix 10
+    if {$device_type == 2} {
+      foreach x {analogreset_stat digitalreset_stat} {
+        add_interface ${x} conduit end
+        set_interface_property ${x} EXPORT_OF native_phy.rx_${x}
+      }
+    }
+
   }
 
   for {set i 0} {$i < $num_of_lanes} {incr i} {
