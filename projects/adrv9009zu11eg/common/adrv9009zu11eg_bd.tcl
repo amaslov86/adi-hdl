@@ -370,6 +370,7 @@ for {set i 0} {$i < $TX_NUM_OF_CONVERTERS} {incr i} {
 }
 
 ad_connect tx_adrv9009_som_tpl_core/dac_dunf util_som_tx_upack/fifo_rd_underflow
+ad_connect tx_sysref_0 tx_adrv9009_som_tpl_core/tpl_core/dac_external_sync
 
 # connections (adc)
 
