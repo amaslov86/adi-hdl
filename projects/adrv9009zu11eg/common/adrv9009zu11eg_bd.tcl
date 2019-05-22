@@ -372,6 +372,8 @@ for {set i 0} {$i < $TX_NUM_OF_CONVERTERS} {incr i} {
 ad_connect tx_adrv9009_som_tpl_core/dac_dunf util_som_tx_upack/fifo_rd_underflow
 ad_connect tx_sysref_0 tx_adrv9009_som_tpl_core/tpl_core/dac_external_sync
 
+
+
 # connections (adc)
 
 ad_connect  core_clk_b rx_adrv9009_som_tpl_core/link_clk
@@ -379,7 +381,9 @@ ad_connect  axi_adrv9009_som_rx_jesd/rx_sof rx_adrv9009_som_tpl_core/link_sof
 ad_connect  axi_adrv9009_som_rx_jesd/rx_data_tdata rx_adrv9009_som_tpl_core/link_data
 ad_connect  axi_adrv9009_som_rx_jesd/rx_data_tvalid rx_adrv9009_som_tpl_core/link_valid
 ad_connect  core_clk_b util_som_rx_cpack/clk
-ad_connect  core_clk_b_rstgen/peripheral_reset util_som_rx_cpack/reset
+ad_connect  rx_adrv9009_som_tpl_core/tpl_core/adc_rst_sync util_som_rx_cpack/reset
+ad_connect  rx_adrv9009_som_tpl_core/tpl_core/adc_external_sync rx_sysref_0
+
 
 ad_connect rx_adrv9009_som_tpl_core/adc_valid_0 util_som_rx_cpack/fifo_wr_en
 for {set i 0} {$i < $RX_NUM_OF_CONVERTERS} {incr i} {
