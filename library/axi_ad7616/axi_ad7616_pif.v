@@ -36,10 +36,11 @@
 `timescale 1ns/100ps
 
 module axi_ad7616_pif #(
+  parameter UP_ADDRESS_WIDTH = 14,
+  parameter RD_DIV = 3,
+  parameter RD_CNT = 8) (
 
-  parameter UP_ADDRESS_WIDTH = 14) (
-
-  // physical interface
+ // physical interface
 
   output                  cs_n,
   output      [15:0]      db_o,
@@ -83,20 +84,21 @@ module axi_ad7616_pif #(
   // internal registers
 
   reg     [ 2:0]                  transfer_state = 3'h0;
+  reg     [ 2:0]                  transfer_state_s = 3'h0;
   reg     [ 2:0]                  transfer_state_next = 3'h0;
   reg     [ 1:0]                  width_counter = 2'h0;
   reg     [ 4:0]                  burst_counter = 5'h0;
+  reg     [ 4:0]                  read_counter = 5'h0;
 
   reg                             wr_req_d = 1'h0;
   reg                             rd_req_d = 1'h0;
   reg                             rd_conv_d = 1'h0;
-
+  
   reg                             xfer_req_d = 1'h0;
-
   reg                             rd_valid_d = 1'h0;
 
   // internal wires
-
+  wire                            transfer_state_ch;
   wire                            start_transfer_s;
   wire                            rd_valid_s;
 
@@ -118,22 +120,41 @@ module axi_ad7616_pif #(
     if (rstn == 1'b0) begin
       width_counter <= 2'h0;
     end else begin
-      if((transfer_state == CNTRL0_LOW) || (transfer_state == CNTRL0_HIGH) ||
-         (transfer_state == CNTRL1_LOW) || (transfer_state == CNTRL1_HIGH))
-        width_counter <= width_counter + 1;
-      else
-        width_counter <= 2'h0;
+      if((transfer_state == CNTRL0_LOW) || (transfer_state == CNTRL0_HIGH)) begin
+        if (width_counter == RD_DIV - 1'b1) begin //and state machine not idle
+          width_counter <= 2'h0;
+        end else begin
+          width_counter <= width_counter + 1'b1;
+        end
+      end
+    end
+  end
+
+  assign transfer_state_ch = (transfer_state_s == transfer_state) ? 1'b0 : 1'b1; 
+  
+  always @(posedge clk) begin
+    transfer_state_s <= transfer_state;
+  end
+  
+  always @(posedge clk) begin
+    if (rstn == 1'b0) begin
+      read_counter <= 5'h0;
+    end else if (transfer_state == IDLE) begin
+      read_counter <= 0;
+    end else if ((transfer_state_ch) && (transfer_state == CNTRL0_LOW) && (read_counter != RD_CNT)) begin
+      read_counter <= read_counter + 1'b1;
     end
   end
 
   always @(posedge clk) begin
     if (rstn == 1'b0) begin
-      burst_counter <= 2'h0;
+      burst_counter <= 5'h0;
     end else begin
-      if (transfer_state == CS_HIGH)
+      if (transfer_state == CS_HIGH) begin
         burst_counter <= burst_counter + 1;
-      else if (transfer_state == IDLE)
+      end else if (transfer_state == IDLE) begin
         burst_counter <= 5'h0;
+      end  
     end
   end
 
@@ -156,17 +177,11 @@ module axi_ad7616_pif #(
         transfer_state_next <= CNTRL0_LOW;
       end
       CNTRL0_LOW : begin
-        transfer_state_next <= (width_counter != 2'b11) ? CNTRL0_LOW : CNTRL0_HIGH;
+        transfer_state_next <= (width_counter != RD_DIV - 1'b1) ? CNTRL0_LOW : CNTRL0_HIGH;
       end
       CNTRL0_HIGH : begin
-        transfer_state_next <= (width_counter != 2'b11) ? CNTRL0_HIGH :
-                               ((wr_req_d == 1'b1) || (rd_req_d == 1'b1)) ? CS_HIGH : CNTRL1_LOW;
-      end
-      CNTRL1_LOW : begin
-        transfer_state_next <= (width_counter != 2'b11) ? CNTRL1_LOW : CNTRL1_HIGH;
-      end
-      CNTRL1_HIGH : begin
-        transfer_state_next <= (width_counter != 2'b11) ? CNTRL1_HIGH : CS_HIGH;
+        transfer_state_next <= (width_counter != RD_DIV - 1'b1) ? CNTRL0_HIGH : 
+                         ((wr_req_d == 1'b1) || (rd_req_d == 1'b1) || read_counter == RD_CNT) ? CS_HIGH : CNTRL0_LOW;
       end
       CS_HIGH : begin
         transfer_state_next <= (burst_length == burst_counter) ? IDLE : CNTRL0_LOW;
@@ -212,4 +227,3 @@ module axi_ad7616_pif #(
   end
 
 endmodule
-

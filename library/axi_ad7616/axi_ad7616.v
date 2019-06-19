@@ -38,7 +38,9 @@
 module axi_ad7616 #(
 
   parameter       ID = 0,
-  parameter       IF_TYPE = 1) (
+  parameter       IF_TYPE = 1,
+  parameter       RD_DIV = 3,
+  parameter       RD_CNT = 8) (
 
   // physical data interface
 
@@ -381,7 +383,10 @@ module axi_ad7616 #(
     assign up_rack_if_s = 1'h0;
     assign up_rdata_if_s = 1'h0;
 
-    axi_ad7616_pif i_ad7616_parallel_interface (
+    axi_ad7616_pif #(
+      .RD_DIV (RD_DIV),
+      .RD_CNT (RD_CNT))
+    i_ad7616_parallel_interface(
       .cs_n (rx_cs_n),
       .db_o (rx_db_o),
       .db_i (rx_db_i),

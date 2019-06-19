@@ -214,4 +214,3 @@ module axi_ad7616_control #(
   assign cnvst = (up_cnvst_en == 1'b1) ? cnvst_buf : 1'b0;
 
 endmodule
-
