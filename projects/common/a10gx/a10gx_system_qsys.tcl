@@ -176,7 +176,7 @@ set_instance_parameter_value sys_cpu {mmu_autoAssignTlbPtrSz} {0}
 set_instance_parameter_value sys_cpu {mmu_TLBMissExcOffset} {4096}
 set_instance_parameter_value sys_cpu {resetSlave} {sys_flash.uas}
 set_instance_parameter_value sys_cpu {mmu_TLBMissExcSlave} {sys_tlb_mem.s2}
-set_instance_parameter_value sys_cpu {exceptionSlave} {sys_ddr3_cntrl_arch.ctrl_amm_0}
+set_instance_parameter_value sys_cpu {exceptionSlave} {sys_int_mem.s1}
 set_instance_parameter_value sys_cpu {breakSlave} {sys_cpu.jtag_debug_module}
 set_instance_parameter_value sys_cpu {mul_32_impl} {3}
 set_instance_parameter_value sys_cpu {shift_rot_impl} {0}
@@ -188,6 +188,8 @@ set_instance_parameter_value sys_cpu {setting_dc_ecc_present} {0}
 set_instance_parameter_value sys_cpu {setting_itcm_ecc_present} {0}
 set_instance_parameter_value sys_cpu {setting_dtcm_ecc_present} {0}
 set_instance_parameter_value sys_cpu {mmu_enabled} $mmu_enabled
+#set_instance_parameter_value sys_cpu {dataAddrWidth} 29
+#set_instance_parameter_value sys_cpu {dataMasterHighPerformanceAddrWidth} 29
 add_connection sys_clk.clk sys_cpu.clk
 add_connection sys_clk.clk_reset sys_cpu.reset
 add_connection sys_cpu.debug_reset_request sys_cpu.reset
@@ -222,7 +224,7 @@ add_connection sys_cpu.data_master mm_ccb_sys_cpu.s0
 add_connection sys_cpu.instruction_master mm_ccb_sys_cpu.s0
 add_connection sys_ddr3_cntrl.emif_usr_clk mm_ccb_sys_cpu.m0_clk
 add_connection sys_ddr3_cntrl.emif_usr_reset_n mm_ccb_sys_cpu.m0_reset
-add_connection  mm_ccb_sys_cpu.m0 sys_ddr3_cntrl.ctrl_amm_0
+add_connection mm_ccb_sys_cpu.m0 sys_ddr3_cntrl.ctrl_amm_0
 
 # cpu/hps handling
 
