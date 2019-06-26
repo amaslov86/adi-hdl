@@ -96,6 +96,7 @@ program test_program;
     env.mng.RegWrite32(`AXI_JESD_RX+32'h00c0,32'h00000000);
     env.mng.RegWrite32(`AXI_JESD_TX+32'h00c0,32'h00000000);
 
+
     //PHY INIT
     //REG CTRL
     env.mng.RegWrite32(`ADC_XCVR+32'h0020,32'h00001004);   // RXOUTCLK uses DIV2 
@@ -105,7 +106,7 @@ program test_program;
     env.mng.RegWrite32(`DAC_XCVR+32'h0010,32'h00000001);
 
     #10us;
-    // Read status back
+    //Read status back
     env.mng.RegReadVerify32(`AXI_JESD_RX+32'h0280,3);
     // Check received ILAS
     env.mng.RegReadVerify32(`AXI_JESD_RX+32'h0314,32'h1f018300);
