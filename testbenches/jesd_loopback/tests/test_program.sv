@@ -92,7 +92,6 @@ program test_program;
     env.mng.RegWrite32(`AXI_JESD_TX+32'h0314,32'h1f018300);
     env.mng.RegWrite32(`AXI_JESD_TX+32'h0318,32'h202f0f03);
     env.mng.RegWrite32(`AXI_JESD_TX+32'h031c,32'h47000000);
-
     //LINK ENABLE
     env.mng.RegWrite32(`AXI_JESD_RX+32'h00c0,32'h00000000);
     env.mng.RegWrite32(`AXI_JESD_TX+32'h00c0,32'h00000000);
