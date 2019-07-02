@@ -75,6 +75,8 @@ module ad_ip_jesd204_tpl_adc_regmap #(
   output adc_sync,
   output adc_rst,
 
+  input [31:0] counter_debug,
+
   // Underflow
   input adc_dovf,
 
@@ -194,6 +196,21 @@ module ad_ip_jesd204_tpl_adc_regmap #(
     end
   end
 
+  // DEBUG: up_pps_rcounter is in CPU's clock domain
+  // Define a CDC for counter_debug
+
+  wire [31:0] up_counter_debug;
+
+  up_xfer_status #(
+    .DATA_WIDTH(32))
+  i_xfer_counter_debug (
+    .up_clk (up_clk),
+    .up_rstn (up_rstn),
+    .up_data_status (up_counter_debug),
+    .d_clk (link_clk),
+    .d_rst (adc_rst),
+    .d_data_status (counter_debug));
+
   // common processor control
 
   up_adc_common #(
@@ -237,7 +254,7 @@ module ad_ip_jesd204_tpl_adc_regmap #(
     .up_adc_gpio_in (32'd0),
     .up_adc_gpio_out (),
     .up_adc_ce (),
-    .up_pps_rcounter (32'd0),
+    .up_pps_rcounter (up_counter_debug),
     .up_pps_status (1'b0),
     .up_pps_irq_mask (),
 
