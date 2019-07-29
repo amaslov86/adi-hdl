@@ -1,0 +1,3 @@
+- Protocol MII
+- VADJ 3.3V
+- MII mode, connected directly to the PS7's Ethernet 1 (GMII_ETHERNET_1)

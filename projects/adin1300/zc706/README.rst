@@ -1,0 +1,3 @@
+- Connect to FMC LPC
+- VADJ 3.3V
+- MII mode, connected directly to the PS7's ETHERNET_1(zc706)
