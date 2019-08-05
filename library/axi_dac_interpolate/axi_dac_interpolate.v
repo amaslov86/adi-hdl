@@ -42,15 +42,17 @@ module axi_dac_interpolate #(
   input                 dac_clk,
   input                 dac_rst,
 
-  input       [15:0]    dac_data_a,
-  input       [15:0]    dac_data_b,
+  output      [15:0]    dac_data_a,
+  output      [15:0]    dac_data_b,
   input                 dac_valid_a,
   input                 dac_valid_b,
 
-  output      [15:0]    dac_int_data_a,
-  output      [15:0]    dac_int_data_b,
-  output                dac_int_valid_a,
-  output                dac_int_valid_b,
+  input                 dma_valid_a,
+  input                 dma_valid_b,
+  output                dma_ready_a,
+  output                dma_ready_b,
+  input       [15:0]    dma_data_a,
+  input       [15:0]    dma_data_b,
 
   // axi interface
 
@@ -95,6 +97,7 @@ module axi_dac_interpolate #(
   wire    [ 2:0]    filter_mask_b;
 
   wire              dma_transfer_suspend;
+  wire              start_sync_channels;
 
   wire              dac_correction_enable_a;
   wire              dac_correction_enable_b;
@@ -115,12 +118,15 @@ module axi_dac_interpolate #(
     .dac_data (dac_data_a),
     .dac_valid (dac_valid_a),
 
-    .dac_int_data (dac_int_data_a),
-    .dac_int_valid (dac_int_valid_a),
+    .dma_data (dma_data_a),
+    .dma_ready (dma_ready_a),
+    .dma_valid (dma_valid_a),
+    .dma_valid_adjacent (dma_valid_b),
 
     .filter_mask (filter_mask_a),
     .interpolation_ratio (interpolation_ratio_a),
     .dma_transfer_suspend (dma_transfer_suspend),
+    .start_sync_channels (start_sync_channels),
     .dac_correction_enable(dac_correction_enable_a),
     .dac_correction_coefficient(dac_correction_coefficient_a)
   );
@@ -134,12 +140,15 @@ module axi_dac_interpolate #(
     .dac_data (dac_data_b),
     .dac_valid (dac_valid_b),
 
-    .dac_int_data (dac_int_data_b),
-    .dac_int_valid (dac_int_valid_b),
+    .dma_data (dma_data_b),
+    .dma_ready (dma_ready_b),
+    .dma_valid (dma_valid_b),
+    .dma_valid_adjacent (dma_valid_a),
 
     .filter_mask (filter_mask_b),
     .interpolation_ratio (interpolation_ratio_b),
     .dma_transfer_suspend (dma_transfer_suspend),
+    .start_sync_channels (start_sync_channels),
     .dac_correction_enable(dac_correction_enable_b),
     .dac_correction_coefficient(dac_correction_coefficient_b)
   );
@@ -154,6 +163,7 @@ module axi_dac_interpolate #(
     .dac_filter_mask_b (filter_mask_b),
 
     .dma_transfer_suspend (dma_transfer_suspend),
+    .start_sync_channels (start_sync_channels),
     .dac_correction_enable_a(dac_correction_enable_a),
     .dac_correction_enable_b(dac_correction_enable_b),
     .dac_correction_coefficient_a(dac_correction_coefficient_a),

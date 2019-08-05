@@ -116,7 +116,7 @@ ad_ip_parameter ad9963_adc_dmac CONFIG.SYNC_TRANSFER_START true
 ad_ip_parameter ad9963_adc_dmac CONFIG.DISABLE_DEBUG_REGISTERS $DISABLE_DMAC_DEBUG
 
 ad_ip_instance axi_dmac ad9963_dac_dmac_a
-ad_ip_parameter ad9963_dac_dmac_a CONFIG.DMA_TYPE_DEST 2
+ad_ip_parameter ad9963_dac_dmac_a CONFIG.DMA_TYPE_DEST 1
 ad_ip_parameter ad9963_dac_dmac_a CONFIG.DMA_TYPE_SRC 0
 ad_ip_parameter ad9963_dac_dmac_a CONFIG.DMA_AXI_PROTOCOL_SRC 1
 ad_ip_parameter ad9963_dac_dmac_a CONFIG.MAX_BYTES_PER_BURST 128
@@ -126,7 +126,7 @@ ad_ip_parameter ad9963_dac_dmac_a CONFIG.CYCLIC {true}
 ad_ip_parameter ad9963_dac_dmac_a CONFIG.DISABLE_DEBUG_REGISTERS $DISABLE_DMAC_DEBUG
 
 ad_ip_instance axi_dmac ad9963_dac_dmac_b
-ad_ip_parameter ad9963_dac_dmac_b CONFIG.DMA_TYPE_DEST 2
+ad_ip_parameter ad9963_dac_dmac_b CONFIG.DMA_TYPE_DEST 1
 ad_ip_parameter ad9963_dac_dmac_b CONFIG.DMA_TYPE_SRC 0
 ad_ip_parameter ad9963_dac_dmac_b CONFIG.DMA_AXI_PROTOCOL_SRC 1
 ad_ip_parameter ad9963_dac_dmac_b CONFIG.MAX_BYTES_PER_BURST 128
@@ -246,16 +246,18 @@ ad_connect axi_dac_interpolate/dac_rst      axi_ad9963/dac_rst
 
 ad_connect axi_dac_interpolate/dac_valid_a      axi_ad9963/dac_valid_i
 ad_connect axi_dac_interpolate/dac_valid_b      axi_ad9963/dac_valid_q
-ad_connect axi_dac_interpolate/dac_int_data_a   axi_ad9963/dac_data_i
-ad_connect axi_dac_interpolate/dac_int_data_b   axi_ad9963/dac_data_q
+ad_connect axi_dac_interpolate/dac_data_a       axi_ad9963/dac_data_i
+ad_connect axi_dac_interpolate/dac_data_b       axi_ad9963/dac_data_q
 
-ad_connect ad9963_dac_dmac_a/fifo_rd_clk axi_ad9963/dac_clk
-ad_connect ad9963_dac_dmac_b/fifo_rd_clk axi_ad9963/dac_clk
+ad_connect ad9963_dac_dmac_a/m_axis_aclk  axi_ad9963/dac_clk
+ad_connect ad9963_dac_dmac_b/m_axis_aclk  axi_ad9963/dac_clk
 
-ad_connect axi_dac_interpolate/dac_data_a         ad9963_dac_dmac_a/fifo_rd_dout
-ad_connect axi_dac_interpolate/dac_int_valid_a    ad9963_dac_dmac_a/fifo_rd_en
-ad_connect axi_dac_interpolate/dac_data_b         ad9963_dac_dmac_b/fifo_rd_dout
-ad_connect axi_dac_interpolate/dac_int_valid_b    ad9963_dac_dmac_b/fifo_rd_en
+ad_connect axi_dac_interpolate/dma_data_a         ad9963_dac_dmac_a/m_axis_data
+ad_connect axi_dac_interpolate/dma_ready_a        ad9963_dac_dmac_a/m_axis_ready
+ad_connect ad9963_dac_dmac_a/m_axis_valid         axi_dac_interpolate/dma_valid_a
+ad_connect axi_dac_interpolate/dma_data_b         ad9963_dac_dmac_b/m_axis_data
+ad_connect axi_dac_interpolate/dma_ready_b          ad9963_dac_dmac_b/m_axis_ready
+ad_connect ad9963_dac_dmac_b/m_axis_valid         axi_dac_interpolate/dma_valid_b
 
 ad_connect /axi_ad9963/tx_data    txd
 ad_connect /axi_ad9963/tx_iq      txiq
@@ -276,7 +278,6 @@ ad_connect trigger_t adc_trigger/trigger_t
 
 ad_connect axi_ad9963/dac_sync_in axi_ad9963/dac_sync_out
 ad_connect axi_ad9963/adc_dovf    ad9963_adc_dmac/fifo_wr_overflow
-ad_connect axi_ad9963/dac_dunf    ad9963_dac_dmac_a/fifo_rd_underflow
 
 # interconnects
 
@@ -354,4 +355,14 @@ ad_cpu_interrupt ps-12 mb-13 pattern_generator_dmac/irq
 ad_cpu_interrupt ps-10 mb-14 ad9963_adc_dmac/irq
 ad_cpu_interrupt ps-9 mb-15 ad9963_dac_dmac_a/irq
 ad_cpu_interrupt ps-8 mb-16 ad9963_dac_dmac_b/irq
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.2 ila_0
+set_property -dict [list CONFIG.C_DATA_DEPTH {16384} CONFIG.C_NUM_OF_PROBES {6} CONFIG.C_ENABLE_ILA_AXI_MON {false} CONFIG.C_MONITOR_TYPE {Native}] [get_bd_cells ila_0]
+connect_bd_net [get_bd_pins ila_0/clk] [get_bd_pins axi_ad9963/dac_clk]
+connect_bd_net [get_bd_pins ila_0/probe0] [get_bd_pins axi_dac_interpolate/dma_ready_a]
+connect_bd_net [get_bd_pins ila_0/probe1] [get_bd_pins axi_dac_interpolate/dma_ready_b]
+connect_bd_net [get_bd_pins ila_0/probe2] [get_bd_pins axi_ad9963/dac_valid_i]
+connect_bd_net [get_bd_pins ila_0/probe3] [get_bd_pins axi_ad9963/dac_valid_q]
+connect_bd_net [get_bd_pins ila_0/probe4] [get_bd_pins ad9963_dac_dmac_a/m_axis_valid]
+connect_bd_net [get_bd_pins ila_0/probe5] [get_bd_pins ad9963_dac_dmac_b/m_axis_valid]
 

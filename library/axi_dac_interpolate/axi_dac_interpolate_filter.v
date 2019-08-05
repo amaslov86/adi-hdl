@@ -43,29 +43,34 @@ module axi_dac_interpolate_filter #(
   input                 dac_clk,
   input                 dac_rst,
 
-  input       [15:0]    dac_data,
   input                 dac_valid,
+  output  reg [15:0]    dac_data,
 
-  output  reg [15:0]    dac_int_data,
-  output  reg           dac_int_valid,
+  output                dma_ready,
+  input       [15:0]    dma_data,
+  input                 dma_valid,
+  input                 dma_valid_adjacent,
 
   input       [ 2:0]    filter_mask,
   input       [31:0]    interpolation_ratio,
   input       [15:0]    dac_correction_coefficient,
   input                 dac_correction_enable,
-  input                 dma_transfer_suspend
+  input                 dma_transfer_suspend,
+  input                 start_sync_channels
 );
 
   // internal signals
 
+  reg               dac_int_valid_d;
   reg               dac_filt_int_valid;
   reg     [15:0]    interp_rate_cic;
   reg     [ 2:0]    filter_mask_d1;
   reg               cic_change_rate;
   reg     [31:0]    interpolation_counter;
-
+  reg               transmit_ready = 1'b1;
   reg               filter_enable = 1'b0;
 
+  wire              run_int_cnt;
   wire              dac_valid_corrected;
   wire    [15:0]    dac_data_corrected;
   wire              dac_fir_valid;
@@ -79,8 +84,8 @@ module axi_dac_interpolate_filter #(
     .SCALE_ONLY(1))
   i_ad_iqcor (
     .clk (dac_clk),
-    .valid (dac_valid),
-    .data_in (dac_data),
+    .valid (dac_valid & dma_valid),
+    .data_in (dma_data),
     .data_iq (16'h0),
     .valid_out (dac_valid_corrected),
     .data_out (dac_data_corrected),
@@ -115,23 +120,51 @@ module axi_dac_interpolate_filter #(
     end
   end
 
+  assign run_int_cnt = dac_filt_int_valid & (
+                         (dma_valid & !start_sync_channels) |
+                         (dma_valid & dma_valid_adjacent));
+
   always @(posedge dac_clk) begin
     if (interpolation_ratio == 0 || interpolation_ratio == 1) begin
-      dac_int_valid <= dac_filt_int_valid;
+      dac_int_valid_d <= dac_filt_int_valid;
     end else begin
-      if (dac_filt_int_valid == 1'b1) begin
-        if (interpolation_counter  < interpolation_ratio) begin
+      if (run_int_cnt) begin
+        if (interpolation_counter < interpolation_ratio) begin
           interpolation_counter <= interpolation_counter + 1;
-          dac_int_valid <= 1'b0;
+          dac_int_valid_d <= 1'b0;
         end else begin
           interpolation_counter <= 0;
-          dac_int_valid <= 1'b1;
+          dac_int_valid_d <= 1'b1;
         end
       end else begin
-        dac_int_valid <= 1'b0;
+        dac_int_valid_d <= 1'b0;
+        interpolation_counter <= 0;
+        dac_int_valid_d <= 1'b1;
       end
     end
   end
+
+  always @(posedge dac_clk) begin
+    if (start_sync_channels == 1'b0) begin
+      transmit_ready <= 1'b1;
+    end else if (dma_valid & dma_valid_adjacent) begin
+      transmit_ready <= 1'b1;
+    end else begin
+      transmit_ready <= 1'b0;
+    end
+  end
+
+  assign dma_ready = transmit_ready ? dac_int_valid_d : 1'b0;
+
+  // ila
+  ila_d my_ila (
+    .clk(dac_clk),
+    .probe0(dma_ready),
+    .probe1(dac_int_valid_d),
+    .probe2(dma_valid),
+    .probe3(dma_valid_adjacent),
+    .probe4(run_int_cnt),
+    .probe5(transmit_ready));
 
   always @(posedge dac_clk) begin
     case (filter_mask)
@@ -142,8 +175,8 @@ module axi_dac_interpolate_filter #(
 
   always @(*) begin
     case (filter_enable)
-      1'b0: dac_int_data = dac_data_corrected;
-      default: dac_int_data = dac_cic_data[31:16];
+      1'b0: dac_data = dac_data_corrected;
+      default: dac_data = dac_cic_data[31:16];
     endcase
 
     case (filter_mask)
