@@ -63,7 +63,7 @@ module system_top (
   inout               dip_gpio_0,
   inout               dip_gpio_1,
   inout               dip_gpio_2,
-  inout               dip_gpio_3,
+  input               dip_gpio_3,
   inout               pb_gpio_0,
   inout               pb_gpio_1,
   inout               pb_gpio_2,
@@ -240,6 +240,8 @@ module system_top (
   wire            spi0_miso;
   wire            spi_miso_s;
 
+  wire  [2:0]     fsm_debug;
+
   reg  [7:0]     spi_3_to_8_csn;
 
   always @(*) begin
@@ -275,6 +277,7 @@ module system_top (
   assign gpio_i[94:90] = gpio_o[94:90];
   assign gpio_i[31:28] = gpio_o[31:28];
   assign gpio_i[21:20] = gpio_o[21:20];
+  assign gpio_i[11: 7] = gpio_o[11: 7];
 
   // DEBUG
   reg [26:0]  core_clk_counter_a;
@@ -290,10 +293,10 @@ module system_top (
   reg         sysref_b_d1;
   reg         sysref_b_edge;
 
-  assign led_gpio_0 = led_coreclk_a;
-  assign led_gpio_1 = led_sysref_a;
-  assign led_gpio_2 = led_coreclk_a;
-  assign led_gpio_3 = led_sysref_b;
+  assign led_gpio_0 = (dip_gpio_3 == 1'b0) ? led_coreclk_a : fsm_debug[0];
+  assign led_gpio_1 = (dip_gpio_3 == 1'b0) ? led_sysref_a : fsm_debug[1];
+  assign led_gpio_2 = (dip_gpio_3 == 1'b0) ? led_coreclk_b : fsm_debug[2];
+  assign led_gpio_3 = (dip_gpio_3 == 1'b0) ? led_sysref_b : 1'b1;
 
   always @(posedge core_clk_a) begin
     sysref_a_d1 <= sysref_a;
@@ -428,12 +431,11 @@ module system_top (
               pmod0_d0      // 16
               }));
 
-  ad_iobuf #(.DATA_WIDTH(8)) i_carrier_iobuf_2 (
-    .dio_t ({gpio_t[7:0]}),
-    .dio_i ({gpio_o[7:0]}),
-    .dio_o ({gpio_i[7:0]}),
+  ad_iobuf #(.DATA_WIDTH(7)) i_carrier_iobuf_2 (
+    .dio_t ({gpio_t[6:0]}),
+    .dio_i ({gpio_o[6:0]}),
+    .dio_o ({gpio_i[6:0]}),
     .dio_p ({
-              dip_gpio_3,   // 7
               dip_gpio_2,   // 6
               dip_gpio_1,   // 5
               dip_gpio_0,   // 4
@@ -570,6 +572,7 @@ module system_top (
     .tx_data_7_p (tx_data_b_p[3]),
     .tx_sync_0 (tx_sync),
     .tx_sysref_0 (sysref_a),
+    .fsm_debug_0 (fsm_debug),
     .dac_fifo_bypass(gpio_o[90]),
     .i2s_bclk(i2s_bclk),
     .i2s_lrclk(i2s_lrclk),

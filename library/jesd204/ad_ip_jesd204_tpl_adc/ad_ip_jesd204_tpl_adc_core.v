@@ -48,6 +48,9 @@ module ad_ip_jesd204_tpl_adc_core #(
   output [NUM_CHANNELS-1:0] adc_valid,
   output [DMA_DATA_WIDTH-1:0] adc_data,
 
+  output [2:0]  fsm_debug,
+  output [31:0] counter_debug,
+
   input adc_sync,
   output adc_sync_status,
   input adc_external_sync,
@@ -87,6 +90,52 @@ module ad_ip_jesd204_tpl_adc_core #(
     end
     if (adc_sync_armed == 1'b1) begin
       adc_external_sync_d1 <= adc_external_sync;
+    end
+  end
+
+// DEBUG FSM
+
+  localparam RESET = 3'b001;
+  localparam COUNT = 3'b010;
+  localparam STOP  = 3'b100;
+
+  reg [2:0] state;
+  reg [2:0] next_state;
+  reg [31:0] sync_counter;
+
+  assign fsm_debug = state;
+  assign counter_debug = sync_counter;
+
+  always @ (*) begin
+   next_state = RESET;
+   case(state)
+     RESET : if (adc_external_sync_pulse) begin
+      next_state = COUNT;
+     end else begin
+       next_state = RESET;
+     end
+     COUNT : if (adc_external_sync_pulse) begin
+             next_state = STOP;
+            end else begin
+              next_state = COUNT;
+            end
+     STOP : if (adc_external_sync_pulse) begin
+              next_state = RESET;
+            end else begin
+              next_state = STOP;
+            end
+     default : next_state = RESET;
+    endcase
+  end
+
+  always @ (posedge clk) begin
+    state <= next_state;
+    if (state == RESET) begin
+         sync_counter <=  32'h0;
+    end else begin
+      if (state == COUNT) begin
+        sync_counter <= sync_counter + 1;
+      end
     end
   end
 
