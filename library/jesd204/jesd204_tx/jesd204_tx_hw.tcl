@@ -77,6 +77,11 @@ set_parameter_property NUM_LINKS DISPLAY_NAME "Number of Links"
 set_parameter_property NUM_LINKS ALLOWED_RANGES 1:8
 set_parameter_property NUM_LINKS HDL_PARAMETER true
 
+add_parameter NUM_OUTPUT_PIPELINE INTEGER 0
+set_parameter_property NUM_OUTPUT_PIPELINE DISPLAY_NAME "Number of output pipeline stages"
+set_parameter_property NUM_OUTPUT_PIPELINE ALLOWED_RANGES 0:3
+set_parameter_property NUM_OUTPUT_PIPELINE HDL_PARAMETER true
+
 # clock
 
 add_interface clock clock end
