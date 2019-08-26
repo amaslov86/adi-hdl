@@ -117,6 +117,7 @@ localparam HW = 2 * NUM_LANES;
 
 
 
+
 wire [DW-1:0] phy_data_r;
 wire [CW-1:0] phy_charisk_r;
 wire [HW-1:0] phy_header_r;
@@ -124,6 +125,7 @@ wire [HW-1:0] phy_header_r;
 wire lmc_edge;
 wire lmc_quarter_edge;
 wire eoemb;
+
 
 jesd204_lmfc i_lmfc (
   .clk(clk),
@@ -215,7 +217,6 @@ jesd204_eof_generator #(
   .eof(eof),
   .eomf(eomf)
 );
-
 
 
 for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
