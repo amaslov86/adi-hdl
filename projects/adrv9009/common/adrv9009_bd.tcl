@@ -256,6 +256,12 @@ for {set i 0} {$i < $RX_OS_NUM_OF_LANES} {incr i} {
 ad_connect  axi_adrv9009_rx_os_clkgen/clk_0 axi_adrv9009_rx_os_jesd/device_clk
 ad_connect  axi_adrv9009_rx_os_clkgen/clk_0 axi_adrv9009_rx_os_jesd_rstgen/slowest_sync_clk
 
+# Connect unused CPLL clocks and resets
+for {set i [expr $RX_NUM_OF_LANES+$RX_OS_NUM_OF_LANES]} {$i < $TX_NUM_OF_LANES} {incr i} {
+  ad_connect util_adrv9009_xcvr/cpll_ref_clk_$i GND_1/dout
+  ad_connect util_adrv9009_xcvr/up_cpll_rst_$i GND_1/dout
+}
+
 # dma clock & reset
 
 ad_ip_instance proc_sys_reset sys_dma_rstgen
