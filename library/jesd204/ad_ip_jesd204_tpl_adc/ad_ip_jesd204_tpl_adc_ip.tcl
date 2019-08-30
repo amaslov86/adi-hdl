@@ -92,6 +92,20 @@ set_property -dict [list \
   "display_name" "Core ID" \
 ] $p
 
+set p [ipgui::get_guiparamspec -name "MODE_64B66B_8B10B_N" -component $cc]
+ipgui::move_param -component $cc -order 1 $p -parent $general_group
+set_property -dict [list \
+ "display_name" "Link Layer interface" \
+ "tooltip" "Link Layer interface" \
+ "widget" "comboBox" \
+] $p
+
+set_property -dict [list \
+  value_validation_type pairs \
+  value_validation_pairs {64B66B 1 8B10B 0} \
+] [ipx::get_user_parameters $p -of_objects $cc]
+
+
 set framer_group [ipgui::add_group -name "JESD204 Deframer Configuration" -component $cc \
     -parent $page0 -display_name "JESD204 Deframer Cofiguration"]
 

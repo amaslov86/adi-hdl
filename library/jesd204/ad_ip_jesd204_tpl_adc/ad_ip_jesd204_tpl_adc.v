@@ -35,7 +35,8 @@ module ad_ip_jesd204_tpl_adc #(
   parameter CONVERTER_RESOLUTION = 14,
   parameter BITS_PER_SAMPLE = 16,
   parameter OCTETS_PER_BEAT = 4,
-  parameter TWOS_COMPLEMENT = 1
+  parameter TWOS_COMPLEMENT = 1,
+  parameter MODE_64B66B_8B10B_N = 0
 ) (
   // jesd interface
   // link_clk is (line-rate/40)
@@ -90,6 +91,9 @@ module ad_ip_jesd204_tpl_adc #(
   localparam DMA_DATA_WIDTH = BITS_PER_SAMPLE * DATA_PATH_WIDTH * NUM_CHANNELS;
 
   localparam BYTES_PER_FRAME = (NUM_CHANNELS * BITS_PER_SAMPLE * SAMPLES_PER_FRAME) / ( 8 * NUM_LANES);
+
+  // Assumption: In 64b66b the frames are aligned to blocks when F = 1,2,4,8
+  localparam BYPASS_FRAME_ALIGNER = MODE_64B66B_8B10B_N;
 
   wire [NUM_CHANNELS-1:0] dfmt_enable_s;
   wire [NUM_CHANNELS-1:0] dfmt_sign_extend_s;
@@ -165,7 +169,8 @@ module ad_ip_jesd204_tpl_adc #(
     .LINK_DATA_WIDTH (LINK_DATA_WIDTH),
     .DMA_DATA_WIDTH (DMA_DATA_WIDTH),
     .TWOS_COMPLEMENT (TWOS_COMPLEMENT),
-    .DATA_PATH_WIDTH (DATA_PATH_WIDTH)
+    .DATA_PATH_WIDTH (DATA_PATH_WIDTH),
+    .BYPASS_FRAME_ALIGNER (BYPASS_FRAME_ALIGNER)
   ) i_core (
     .clk (link_clk),
 

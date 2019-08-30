@@ -31,7 +31,8 @@ module ad_ip_jesd204_tpl_adc_deframer #(
   parameter SAMPLES_PER_FRAME = 1,
   parameter OCTETS_PER_BEAT = 8,
   parameter LINK_DATA_WIDTH = OCTETS_PER_BEAT * 8 * NUM_LANES,
-  parameter ADC_DATA_WIDTH = LINK_DATA_WIDTH * CONVERTER_RESOLUTION / BITS_PER_SAMPLE
+  parameter ADC_DATA_WIDTH = LINK_DATA_WIDTH * CONVERTER_RESOLUTION / BITS_PER_SAMPLE,
+  parameter BYPASS_FRAME_ALIGNER = 0
 ) (
   // jesd interface
   // clk is (line-rate/40)
@@ -101,6 +102,7 @@ module ad_ip_jesd204_tpl_adc_deframer #(
   // frame-alignment
 
   generate
+  if (BYPASS_FRAME_ALIGNER == 0) begin
   genvar n;
   for (n = 0; n < NUM_LANES; n = n + 1) begin: g_xcvr_if
     localparam DW = OCTETS_PER_BEAT * 8;
@@ -113,6 +115,9 @@ module ad_ip_jesd204_tpl_adc_deframer #(
       .rx_sof (),
       .rx_data (link_data_s[n*DW+:DW])
     );
+  end
+  end else begin
+    assign link_data_s = link_data;
   end
   endgenerate
 

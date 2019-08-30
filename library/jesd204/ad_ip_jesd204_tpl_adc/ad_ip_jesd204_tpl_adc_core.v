@@ -33,7 +33,8 @@ module ad_ip_jesd204_tpl_adc_core #(
   parameter DATA_PATH_WIDTH = 1,
   parameter LINK_DATA_WIDTH = NUM_LANES * OCTETS_PER_BEAT * 8,
   parameter DMA_DATA_WIDTH = DATA_PATH_WIDTH * BITS_PER_SAMPLE * NUM_CHANNELS,
-  parameter TWOS_COMPLEMENT = 1
+  parameter TWOS_COMPLEMENT = 1,
+  parameter BYPASS_FRAME_ALIGNER = 0
 ) (
   input clk,
 
@@ -71,7 +72,8 @@ module ad_ip_jesd204_tpl_adc_core #(
     .SAMPLES_PER_FRAME (SAMPLES_PER_FRAME),
     .OCTETS_PER_BEAT (OCTETS_PER_BEAT),
     .LINK_DATA_WIDTH (LINK_DATA_WIDTH),
-    .ADC_DATA_WIDTH (ADC_DATA_WIDTH)
+    .ADC_DATA_WIDTH (ADC_DATA_WIDTH),
+    .BYPASS_FRAME_ALIGNER (BYPASS_FRAME_ALIGNER)
   ) i_deframer (
     .clk (clk),
     .link_sof (link_sof),
