@@ -1,0 +1,3 @@
+- Connect to FMC0
+- Voltage 1.8V
+- RGMII mode, using a GMII-to-RGMII converter. Connected to PS8' Ethernet 0 (GMII_ENET0).
