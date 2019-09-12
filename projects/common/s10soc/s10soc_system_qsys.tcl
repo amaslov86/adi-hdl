@@ -5,21 +5,23 @@ set system_type s10soc
 
 # clock & reset
 
-add_instance sys_clk clock_source
+add_instance sys_clk altera_clock_bridge 19.1
+set_instance_parameter_value sys_clk {EXPLICIT_CLOCK_RATE} {100000000.0}
+set_instance_parameter_value sys_clk {NUM_CLOCK_OUTPUTS} {1}
 add_interface sys_clk clock sink
-set_interface_property sys_clk EXPORT_OF sys_clk.clk_in
+set_interface_property sys_clk EXPORT_OF sys_clk.in_clk
+
+add_instance sys_resetn altera_reset_bridge 19.1
+add_connection sys_clk.out_clk sys_resetn.clk
 add_interface sys_rstn reset sink
-set_interface_property sys_rstn EXPORT_OF sys_clk.clk_in_reset
-set_instance_parameter_value sys_clk {clockFrequency} {100000000.0}
-set_instance_parameter_value sys_clk {clockFrequencyKnown} {1}
-set_instance_parameter_value sys_clk {resetSynchronousEdges} {DEASSERT}
+set_interface_property sys_rstn EXPORT_OF sys_resetn.in_reset
 
 # sysid
 
 add_instance sys_id altera_avalon_sysid_qsys
 set_instance_parameter_value sys_id {ID} {0x00000100}
-add_connection sys_clk.clk sys_id.clk
-add_connection sys_clk.clk_reset sys_id.reset
+add_connection sys_clk.out_clk sys_id.clk
+add_connection sys_resetn.out_reset sys_id.reset
 
 # hps
 # round-about way - qsys-script doesn't support {*}?
@@ -149,23 +151,20 @@ set_instance_parameter_value sys_hps {W_RESET_ACTION} {0}
 set_instance_parameter_value sys_hps {eosc1_clk_mhz} {25.0}
 set_instance_parameter_value sys_hps {watchdog_reset} {0}
 
-# add_interface sys_hps_rstn reset source
-# set_interface_property sys_hps_rstn EXPORT_OF sys_hps.h2f_cold_rst_n
-
 add_interface sys_hps_io conduit end
 set_interface_property sys_hps_io EXPORT_OF sys_hps.hps_io
-add_connection sys_clk.clk sys_hps.h2f_lw_axi_clock
-add_connection sys_clk.clk_reset sys_hps.h2f_lw_axi_reset
-add_connection sys_clk.clk sys_hps.f2h_axi_clock
-add_connection sys_clk.clk_reset sys_hps.f2h_axi_reset
-add_connection sys_clk.clk sys_hps.h2f_axi_clock
-add_connection sys_clk.clk_reset sys_hps.h2f_axi_reset
+add_connection sys_clk.out_clk sys_hps.h2f_lw_axi_clock
+add_connection sys_resetn.out_reset sys_hps.h2f_lw_axi_reset
+add_connection sys_clk.out_clk sys_hps.f2h_axi_clock
+add_connection sys_resetn.out_reset sys_hps.f2h_axi_reset
+add_connection sys_clk.out_clk sys_hps.h2f_axi_clock
+add_connection sys_resetn.out_reset sys_hps.h2f_axi_reset
 
 # common dma interfaces
 
 add_instance sys_dma_clk clock_source
 set_instance_parameter_value sys_dma_clk {resetSynchronousEdges} {DEASSERT}
-add_connection sys_clk.clk_reset sys_dma_clk.clk_in_reset
+add_connection sys_resetn.out_reset sys_dma_clk.clk_in_reset
 add_connection sys_hps.h2f_user0_clock sys_dma_clk.clk_in
 add_connection sys_dma_clk.clk sys_hps.f2sdram0_clock
 add_connection sys_dma_clk.clk_reset sys_hps.f2sdram0_reset
@@ -225,7 +224,6 @@ proc ad_cpu_interrupt {m_irq m_port} {
 }
 
 proc ad_cpu_interconnect {m_base m_port} {
-
   add_connection sys_hps.h2f_lw_axi_master ${m_port}
   set_connection_parameter_value sys_hps.h2f_lw_axi_master/${m_port} baseAddress ${m_base}
 }
@@ -243,8 +241,8 @@ set_instance_parameter_value sys_gpio_bd {direction} {InOut}
 set_instance_parameter_value sys_gpio_bd {generateIRQ} {1}
 set_instance_parameter_value sys_gpio_bd {width} {32}
 
-add_connection sys_clk.clk sys_gpio_bd.clk
-add_connection sys_clk.clk_reset sys_gpio_bd.reset
+add_connection sys_clk.out_clk sys_gpio_bd.clk
+add_connection sys_resetn.out_reset sys_gpio_bd.reset
 add_interface sys_gpio_bd conduit end
 set_interface_property sys_gpio_bd EXPORT_OF sys_gpio_bd.external_connection
 
@@ -255,8 +253,8 @@ set_instance_parameter_value sys_gpio_in {direction} {Input}
 set_instance_parameter_value sys_gpio_in {generateIRQ} {1}
 set_instance_parameter_value sys_gpio_in {width} {32}
 
-add_connection sys_clk.clk_reset sys_gpio_in.reset
-add_connection sys_clk.clk sys_gpio_in.clk
+add_connection sys_resetn.out_reset sys_gpio_in.reset
+add_connection sys_clk.out_clk sys_gpio_in.clk
 add_interface sys_gpio_in conduit end
 set_interface_property sys_gpio_in EXPORT_OF sys_gpio_in.external_connection
 
@@ -267,8 +265,8 @@ set_instance_parameter_value sys_gpio_out {direction} {Output}
 set_instance_parameter_value sys_gpio_out {generateIRQ} {0}
 set_instance_parameter_value sys_gpio_out {width} {32}
 
-add_connection sys_clk.clk_reset sys_gpio_out.reset
-add_connection sys_clk.clk sys_gpio_out.clk
+add_connection sys_resetn.out_reset sys_gpio_out.reset
+add_connection sys_clk.out_clk sys_gpio_out.clk
 add_interface sys_gpio_out conduit end
 set_interface_property sys_gpio_out EXPORT_OF sys_gpio_out.external_connection
 
@@ -282,8 +280,8 @@ set_instance_parameter_value sys_spi {masterSPI} {1}
 set_instance_parameter_value sys_spi {numberOfSlaves} {8}
 set_instance_parameter_value sys_spi {targetClockRate} {10000000.0}
 
-add_connection sys_clk.clk_reset sys_spi.reset
-add_connection sys_clk.clk sys_spi.clk
+add_connection sys_resetn.out_reset sys_spi.reset
+add_connection sys_clk.out_clk sys_spi.clk
 add_interface sys_spi conduit end
 set_interface_property sys_spi EXPORT_OF sys_spi.external
 
