@@ -56,8 +56,8 @@ module jesd204_tx #(
   output [4*NUM_LANES-1:0] phy_charisk,
 
   input sysref,
-  output lmfc_edge,
-  output lmfc_clk,
+  output lmfc_lemc_edge,
+  output lmfc_lemc_clk,
 
   input [NUM_LINKS-1:0] sync,
 
@@ -69,7 +69,7 @@ module jesd204_tx #(
   input [NUM_LINKS-1:0] cfg_links_disable,
   input [7:0] cfg_beats_per_multiframe,
   input [7:0] cfg_octets_per_frame,
-  input [7:0] cfg_lmfc_offset,
+  input [7:0] cfg_lmfc_lemc_offset,
   input cfg_sysref_oneshot,
   input cfg_sysref_disable,
   input cfg_continuous_cgs,
@@ -131,7 +131,7 @@ jesd204_lmfc i_lmfc (
   .reset(reset),
 
   .cfg_beats_per_multiframe(cfg_beats_per_multiframe),
-  .cfg_lmfc_offset(cfg_lmfc_offset),
+  .cfg_lmfc_lemc_offset(cfg_lmfc_lemc_offset),
   .cfg_sysref_oneshot(cfg_sysref_oneshot),
   .cfg_sysref_disable(cfg_sysref_disable),
 
@@ -140,9 +140,9 @@ jesd204_lmfc i_lmfc (
   .sysref_edge(event_sysref_edge),
   .sysref_alignment_error(event_sysref_alignment_error),
 
-  .lmfc_edge(lmfc_edge),
-  .lmfc_clk(lmfc_clk),
-  .lmfc_counter()
+  .lmfc_lemc_edge(lmfc_lemc_edge),
+  .lmfc_lemc_clk(lmfc_lemc_clk),
+  .lmfc_lemc_counter()
 );
 
 jesd204_tx_ctrl #(
@@ -154,7 +154,7 @@ jesd204_tx_ctrl #(
   .reset(reset),
 
   .sync(sync),
-  .lmfc_edge(lmfc_edge),
+  .lmfc_edge(lmfc_lemc_edge),
 
   .lane_cgs_enable(lane_cgs_enable),
   .eof_reset(eof_gen_reset),
@@ -192,7 +192,7 @@ jesd204_eof_generator #(
   .cfg_octets_per_frame(cfg_octets_per_frame),
   .cfg_generate_eomf(cfg_generate_eomf),
 
-  .lmfc_edge(lmfc_edge),
+  .lmfc_edge(lmfc_lemc_edge),
   .sof(),
   .eof(eof),
   .eomf(eomf)

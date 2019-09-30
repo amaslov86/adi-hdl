@@ -84,7 +84,7 @@ module axi_jesd204_rx #(
   output [7:0] core_cfg_octets_per_frame,
   output core_cfg_disable_scrambler,
   output core_cfg_disable_char_replacement,
-  output [7:0] core_cfg_lmfc_offset,
+  output [7:0] core_cfg_lmfc_lemc_offset,
   output core_cfg_sysref_oneshot,
   output core_cfg_sysref_disable,
   output core_cfg_buffer_early_release,
@@ -132,7 +132,7 @@ wire up_cfg_sysref_oneshot;
 wire up_cfg_sysref_disable;
 wire up_cfg_buffer_early_release;
 wire [7:0] up_cfg_buffer_delay;
-wire [7:0] up_cfg_lmfc_offset;
+wire [7:0] up_cfg_lmfc_lemc_offset;
 
 wire up_reset;
 wire up_reset_synchronizer;
@@ -212,14 +212,14 @@ jesd204_up_common #(
     /*    17 */ up_cfg_sysref_oneshot,
     /*    16 */ up_cfg_buffer_early_release,
     /* 08-15 */ up_cfg_buffer_delay,
-    /* 00-07 */ up_cfg_lmfc_offset
+    /* 00-07 */ up_cfg_lmfc_lemc_offset
   }),
   .core_extra_cfg({
     /*    18 */ core_cfg_sysref_disable,
     /*    17 */ core_cfg_sysref_oneshot,
     /*    16 */ core_cfg_buffer_early_release,
     /* 08-15 */ core_cfg_buffer_delay,
-    /* 00-07 */ core_cfg_lmfc_offset
+    /* 00-07 */ core_cfg_lmfc_lemc_offset
   })
 );
 
@@ -239,7 +239,7 @@ jesd204_up_sysref i_up_sysref (
 
   .up_cfg_is_writeable(up_cfg_is_writeable),
 
-  .up_cfg_lmfc_offset(up_cfg_lmfc_offset),
+  .up_cfg_lmfc_lemc_offset(up_cfg_lmfc_lemc_offset),
   .up_cfg_sysref_oneshot(up_cfg_sysref_oneshot),
   .up_cfg_sysref_disable(up_cfg_sysref_disable)
 );

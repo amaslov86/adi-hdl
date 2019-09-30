@@ -58,7 +58,7 @@ module jesd204_rx_static_config #(
   output [NUM_LINKS-1:0] cfg_links_disable,
   output [7:0] cfg_beats_per_multiframe,
   output [7:0] cfg_octets_per_frame,
-  output [7:0] cfg_lmfc_offset,
+  output [7:0] cfg_lmfc_lemc_offset,
   output cfg_sysref_oneshot,
   output cfg_sysref_disable,
 
@@ -70,7 +70,7 @@ module jesd204_rx_static_config #(
 
 assign cfg_beats_per_multiframe = (FRAMES_PER_MULTIFRAME * OCTETS_PER_FRAME / 4) - 1;
 assign cfg_octets_per_frame = OCTETS_PER_FRAME - 1;
-assign cfg_lmfc_offset = 3;
+assign cfg_lmfc_lemc_offset = 3;
 assign cfg_sysref_oneshot = 1'b0;
 assign cfg_sysref_disable = 1'b0;
 assign cfg_buffer_delay = 'h0;

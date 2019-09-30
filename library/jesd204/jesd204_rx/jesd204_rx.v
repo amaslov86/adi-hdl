@@ -58,8 +58,8 @@ module jesd204_rx #(
   input [4*NUM_LANES-1:0] phy_disperr,
 
   input sysref,
-  output lmfc_edge,
-  output lmfc_clk,
+  output lmfc_lemc_edge,
+  output lmfc_lemc_clk,
 
   output event_sysref_alignment_error,
   output event_sysref_edge,
@@ -77,7 +77,7 @@ module jesd204_rx #(
   input [NUM_LINKS-1:0] cfg_links_disable,
   input [7:0] cfg_beats_per_multiframe,
   input [7:0] cfg_octets_per_frame,
-  input [7:0] cfg_lmfc_offset,
+  input [7:0] cfg_lmfc_lemc_offset,
   input cfg_sysref_disable,
   input cfg_sysref_oneshot,
   input cfg_buffer_early_release,
@@ -153,7 +153,7 @@ wire [DW-1:0] rx_data_s;
 
 wire rx_valid_s = buffer_release_d1;
 
-wire [7:0] lmfc_counter;
+wire [7:0] lmfc_lemc_counter;
 wire latency_monitor_reset;
 
 wire [2*NUM_LANES-1:0] frame_align;
@@ -162,7 +162,7 @@ wire [NUM_LANES-1:0] ifs_ready;
 reg buffer_release_opportunity = 1'b0;
 
 always @(posedge clk) begin
-  if (lmfc_counter == cfg_buffer_delay ||
+  if (lmfc_lemc_counter == cfg_buffer_delay ||
       cfg_buffer_early_release == 1'b1) begin
     buffer_release_opportunity <= 1'b1;
   end else begin
@@ -221,14 +221,14 @@ jesd204_lmfc i_lmfc (
   .reset(reset),
 
   .cfg_beats_per_multiframe(cfg_beats_per_multiframe),
-  .cfg_lmfc_offset(cfg_lmfc_offset),
+  .cfg_lmfc_lemc_offset(cfg_lmfc_lemc_offset),
   .cfg_sysref_oneshot(cfg_sysref_oneshot),
   .cfg_sysref_disable(cfg_sysref_disable),
 
   .sysref(sysref),
-  .lmfc_edge(lmfc_edge),
-  .lmfc_clk(lmfc_clk),
-  .lmfc_counter(lmfc_counter),
+  .lmfc_lemc_edge(lmfc_lemc_edge),
+  .lmfc_lemc_clk(lmfc_lemc_clk),
+  .lmfc_lemc_counter(lmfc_lemc_counter),
 
   .sysref_edge(event_sysref_edge),
   .sysref_alignment_error(event_sysref_alignment_error)
@@ -247,7 +247,7 @@ jesd204_rx_ctrl #(
   .phy_ready(1'b1),
   .phy_en_char_align(phy_en_char_align),
 
-  .lmfc_edge(lmfc_edge),
+  .lmfc_edge(lmfc_lemc_edge),
   .sync(sync),
 
   .latency_monitor_reset(latency_monitor_reset),
@@ -267,7 +267,7 @@ jesd204_eof_generator  #(
   .clk(clk),
   .reset(eof_reset),
 
-  .lmfc_edge(lmfc_edge),
+  .lmfc_edge(lmfc_lemc_edge),
 
   .cfg_octets_per_frame(cfg_octets_per_frame),
   .cfg_generate_eomf(1'b0),

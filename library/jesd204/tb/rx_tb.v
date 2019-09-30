@@ -141,7 +141,7 @@ module rx_tb;
   wire [NUM_LINKS-1:0] cfg_links_disable;
   wire [7:0] cfg_beats_per_multiframe;
   wire [7:0] cfg_octets_per_frame;
-  wire [7:0] cfg_lmfc_offset;
+  wire [7:0] cfg_lmfc_lemc_offset;
   wire cfg_sysref_oneshot;
   wire cfg_sysref_disable;
   wire cfg_disable_scrambler;
@@ -173,7 +173,7 @@ module rx_tb;
     .cfg_links_disable(cfg_links_disable),
     .cfg_beats_per_multiframe(cfg_beats_per_multiframe),
     .cfg_octets_per_frame(cfg_octets_per_frame),
-    .cfg_lmfc_offset(cfg_lmfc_offset),
+    .cfg_lmfc_lemc_offset(cfg_lmfc_lemc_offset),
     .cfg_sysref_oneshot(cfg_sysref_oneshot),
     .cfg_sysref_disable(cfg_sysref_disable),
     .cfg_disable_scrambler(cfg_disable_scrambler),
@@ -191,7 +191,7 @@ module rx_tb;
     .cfg_links_disable(cfg_links_disable),
     .cfg_beats_per_multiframe(cfg_beats_per_multiframe),
     .cfg_octets_per_frame(cfg_octets_per_frame),
-    .cfg_lmfc_offset(cfg_lmfc_offset),
+    .cfg_lmfc_lemc_offset(cfg_lmfc_lemc_offset),
     .cfg_sysref_oneshot(cfg_sysref_oneshot),
     .cfg_sysref_disable(cfg_sysref_disable),
     .cfg_disable_scrambler(cfg_disable_scrambler),

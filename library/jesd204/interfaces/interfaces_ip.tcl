@@ -52,7 +52,7 @@ adi_if_ports output -1 lanes_disable
 adi_if_ports output -1 links_disable
 adi_if_ports output 8 beats_per_multiframe
 adi_if_ports output 8 octets_per_frame
-adi_if_ports output 8 lmfc_offset
+adi_if_ports output 8 lmfc_lemc_offset
 adi_if_ports output 1 continuous_cgs
 adi_if_ports output 1 continuous_ilas
 adi_if_ports output 1 skip_ilas
@@ -83,7 +83,7 @@ adi_if_ports output -1 lanes_disable
 adi_if_ports output -1 links_disable
 adi_if_ports output 8 beats_per_multiframe
 adi_if_ports output 8 octets_per_frame
-adi_if_ports output 8 lmfc_offset
+adi_if_ports output 8 lmfc_lemc_offset
 adi_if_ports output 1 buffer_early_release
 adi_if_ports output 1 buffer_delay
 adi_if_ports output 1 disable_char_replacement

@@ -95,7 +95,7 @@ adi_add_bus "rx_cfg" "slave" \
     { "cfg_links_disable" "links_disable" } \
     { "cfg_beats_per_multiframe" "beats_per_multiframe" } \
     { "cfg_octets_per_frame" "octets_per_frame" } \
-    { "cfg_lmfc_offset" "lmfc_offset" } \
+    { "cfg_lmfc_lemc_offset" "lmfc_lemc_offset" } \
     { "cfg_sysref_oneshot" "sysref_oneshot" } \
     { "cfg_sysref_disable" "sysref_disable" } \
     { "cfg_buffer_delay" "buffer_delay" } \

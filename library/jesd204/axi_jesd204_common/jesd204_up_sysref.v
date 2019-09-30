@@ -60,7 +60,7 @@ module jesd204_up_sysref (
   input up_cfg_is_writeable,
 
   output reg up_cfg_sysref_oneshot,
-  output reg [7:0] up_cfg_lmfc_offset,
+  output reg [7:0] up_cfg_lmfc_lemc_offset,
   output reg up_cfg_sysref_disable,
 
   input core_event_sysref_alignment_error,
@@ -101,8 +101,8 @@ always @(*) begin
   };
   12'h041: up_rdata <= {
     /* 10-31 */ 22'h00, /* Reserved for future use */
-    /* 02-09 */ up_cfg_lmfc_offset,
-    /* 00-01 */ 2'b00 /* data path alignment for cfg_lmfc_offset */
+    /* 02-09 */ up_cfg_lmfc_lemc_offset,
+    /* 00-01 */ 2'b00 /* data path alignment for cfg_lmfc_lemc_offset */
   };
   12'h042: up_rdata <= {
     /* 02-31 */ 30'h00,
@@ -115,7 +115,7 @@ end
 always @(posedge up_clk) begin
   if (up_reset == 1'b1) begin
     up_cfg_sysref_oneshot <= 1'b0;
-    up_cfg_lmfc_offset <= 'h00;
+    up_cfg_lmfc_lemc_offset <= 'h00;
     up_cfg_sysref_disable <= 1'b0;
   end else if (up_wreq == 1'b1 && up_cfg_is_writeable == 1'b1) begin
     case (up_waddr)
@@ -126,7 +126,7 @@ always @(posedge up_clk) begin
     end
     12'h041: begin
       /* Aligned to data path width */
-      up_cfg_lmfc_offset <= up_wdata[9:2];
+      up_cfg_lmfc_lemc_offset <= up_wdata[9:2];
     end
     endcase
   end

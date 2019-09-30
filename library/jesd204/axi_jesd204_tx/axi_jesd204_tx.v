@@ -82,7 +82,7 @@ module axi_jesd204_tx #(
   output [NUM_LINKS-1:0] core_cfg_links_disable,
   output [7:0] core_cfg_beats_per_multiframe,
   output [7:0] core_cfg_octets_per_frame,
-  output [7:0] core_cfg_lmfc_offset,
+  output [7:0] core_cfg_lmfc_lemc_offset,
   output core_cfg_sysref_oneshot,
   output core_cfg_sysref_disable,
   output core_cfg_continuous_cgs,
@@ -127,7 +127,7 @@ wire up_cfg_skip_ilas;
 wire up_cfg_continuous_ilas;
 wire up_cfg_continuous_cgs;
 wire [7:0] up_cfg_mframes_per_ilas;
-wire [7:0] up_cfg_lmfc_offset;
+wire [7:0] up_cfg_lmfc_lemc_offset;
 wire up_cfg_sysref_oneshot;
 wire up_cfg_sysref_disable;
 wire up_cfg_is_writeable;
@@ -215,7 +215,7 @@ jesd204_up_common #(
     /*    18 */ up_cfg_continuous_cgs,
     /*    17 */ up_cfg_continuous_ilas,
     /*    16 */ up_cfg_skip_ilas,
-    /* 08-15 */ up_cfg_lmfc_offset,
+    /* 08-15 */ up_cfg_lmfc_lemc_offset,
     /* 00-07 */ up_cfg_mframes_per_ilas
   }),
   .core_extra_cfg({
@@ -224,7 +224,7 @@ jesd204_up_common #(
     /*    18 */ core_cfg_continuous_cgs,
     /*    17 */ core_cfg_continuous_ilas,
     /*    16 */ core_cfg_skip_ilas,
-    /* 08-15 */ core_cfg_lmfc_offset,
+    /* 08-15 */ core_cfg_lmfc_lemc_offset,
     /* 00-07 */ core_cfg_mframes_per_ilas
   })
 );
@@ -237,7 +237,7 @@ jesd204_up_sysref i_up_sysref (
   .core_event_sysref_alignment_error(core_event_sysref_alignment_error),
   .core_event_sysref_edge(core_event_sysref_edge),
 
-  .up_cfg_lmfc_offset(up_cfg_lmfc_offset),
+  .up_cfg_lmfc_lemc_offset(up_cfg_lmfc_lemc_offset),
   .up_cfg_sysref_oneshot(up_cfg_sysref_oneshot),
   .up_cfg_sysref_disable(up_cfg_sysref_disable),
 

@@ -77,7 +77,7 @@ adi_add_bus "tx_cfg" "master" \
     { "core_cfg_links_disable" "links_disable" } \
     { "core_cfg_beats_per_multiframe" "beats_per_multiframe" } \
     { "core_cfg_octets_per_frame" "octets_per_frame" } \
-    { "core_cfg_lmfc_offset" "lmfc_offset" } \
+    { "core_cfg_lmfc_lemc_offset" "lmfc_lemc_offset" } \
     { "core_cfg_sysref_oneshot" "sysref_oneshot" } \
     { "core_cfg_sysref_disable" "sysref_disable" } \
     { "core_cfg_continuous_cgs" "continuous_cgs" } \

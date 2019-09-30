@@ -127,7 +127,7 @@ add_interface_port config core_cfg_disable_char_replacement disable_char_replace
 add_interface_port config core_cfg_disable_scrambler disable_scrambler Output 1
 add_interface_port config core_cfg_lanes_disable lanes_disable Output NUM_LANES
 add_interface_port config core_cfg_links_disable links_disable Output NUM_LINKS
-add_interface_port config core_cfg_lmfc_offset lmfc_offset Output 8
+add_interface_port config core_cfg_lmfc_lemc_offset lmfc_lemc_offset Output 8
 add_interface_port config core_cfg_mframes_per_ilas mframes_per_ilas Output 8
 add_interface_port config core_cfg_octets_per_frame octets_per_frame Output 8
 add_interface_port config core_cfg_skip_ilas skip_ilas Output 1

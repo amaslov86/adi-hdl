@@ -149,7 +149,7 @@ add_interface_port config cfg_disable_char_replacement disable_char_replacement 
 add_interface_port config cfg_disable_scrambler disable_scrambler Input 1
 add_interface_port config cfg_lanes_disable lanes_disable Input NUM_LANES
 add_interface_port config cfg_links_disable links_disable Input NUM_LINKS
-add_interface_port config cfg_lmfc_offset lmfc_offset Input 8
+add_interface_port config cfg_lmfc_lemc_offset lmfc_lemc_offset Input 8
 add_interface_port config cfg_mframes_per_ilas mframes_per_ilas Input 8
 add_interface_port config cfg_octets_per_frame octets_per_frame Input 8
 add_interface_port config cfg_skip_ilas skip_ilas Input 1
@@ -165,21 +165,21 @@ set_interface_property status associatedReset reset
 add_interface_port status status_state state Output 2
 add_interface_port status status_sync sync Output 1
 
-# lmfc_clk interface
+# lmfc_lemc_clk interface
 
-add_interface lmfc_clk conduit end
-#set_interface_property lmfc_clk associatedClock clock
-#set_interface_property lmfc_clk associatedReset reset
-add_interface_port lmfc_clk lmfc_clk export Output 1
-set_port_property lmfc_clk TERMINATION TRUE
+add_interface lmfc_lemc_clk conduit end
+#set_interface_property lmfc_lemc_clk associatedClock clock
+#set_interface_property lmfc_lemc_clk associatedReset reset
+add_interface_port lmfc_lemc_clk lmfc_lemc_clk export Output 1
+set_port_property lmfc_lemc_clk TERMINATION TRUE
 
-# lmfc_edge interface
+# lmfc_lemc_edge interface
 
-add_interface lmfc_edge conduit end
-#set_interface_property lmfc_edge associatedClock clock
-#set_interface_property lmfc_edge associatedReset reset
-add_interface_port lmfc_edge lmfc_edge export Output 1
-set_port_property lmfc_edge TERMINATION TRUE
+add_interface lmfc_lemc_edge conduit end
+#set_interface_property lmfc_lemc_edge associatedClock clock
+#set_interface_property lmfc_lemc_edge associatedReset reset
+add_interface_port lmfc_lemc_edge lmfc_lemc_edge export Output 1
+set_port_property lmfc_lemc_edge TERMINATION TRUE
 
 proc jesd204_tx_elaboration_callback {} {
   set num_lanes [get_parameter_value "NUM_LANES"]
