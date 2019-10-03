@@ -127,4 +127,28 @@ adi_add_bus_clock "core_clk" "tx_status:tx_event:tx_ilas_config:tx_cfg:tx_ctrl" 
 
 set_property DRIVER_VALUE "0" [ipx::get_ports "core_reset_ext"]
 
+adi_set_bus_dependency "tx_ilas_config" "tx_ilas_config" \
+	"(spirit:decode(id('MODELPARAM_VALUE.MODE_64B66B_8B10B_N')) = 0)"
+
+adi_set_bus_dependency "tx_ctrl" "tx_ctrl" \
+	"(spirit:decode(id('MODELPARAM_VALUE.MODE_64B66B_8B10B_N')) = 0)"
+
+set cc [ipx::current_core]
+set page0 [ipgui::get_pagespec -name "Page 0" -component $cc]
+
+# Link layer mode
+set p [ipgui::get_guiparamspec -name "MODE_64B66B_8B10B_N" -component $cc]
+ipgui::move_param -component $cc -order 0 $p -parent $page0
+set_property -dict [list \
+ "display_name" "Link Layer mode" \
+ "tooltip" "Link Layer mode" \
+ "widget" "comboBox" \
+] $p
+
+set_property -dict [list \
+  value_validation_type pairs \
+  value_validation_pairs {64B66B 1 8B10B 0} \
+] [ipx::get_user_parameters $p -of_objects $cc]
+
+ipx::create_xgui_files [ipx::current_core]
 ipx::save_core [ipx::current_core]

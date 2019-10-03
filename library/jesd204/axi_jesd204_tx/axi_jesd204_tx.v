@@ -47,7 +47,8 @@
 module axi_jesd204_tx #(
   parameter ID = 0,
   parameter NUM_LANES = 1,
-  parameter NUM_LINKS = 1
+  parameter NUM_LINKS = 1,
+  parameter MODE_64B66B_8B10B_N = 0
 ) (
   input s_axi_aclk,
   input s_axi_aresetn,
@@ -107,6 +108,8 @@ module axi_jesd204_tx #(
 
 localparam PCORE_VERSION = 32'h00010161; // 1.01.a
 localparam PCORE_MAGIC = 32'h32303454; // 204T
+
+localparam DATA_PATH_WIDTH = MODE_64B66B_8B10B_N ? 3 : 2;
 
 wire up_reset;
 
@@ -174,10 +177,11 @@ jesd204_up_common #(
   .ID(ID),
   .NUM_LANES(NUM_LANES),
   .NUM_LINKS(NUM_LINKS),
-  .DATA_PATH_WIDTH(2),
+  .DATA_PATH_WIDTH(DATA_PATH_WIDTH),
   .NUM_IRQS(5),
   .EXTRA_CFG_WIDTH(21),
-  .MAX_OCTETS_PER_FRAME(8)
+  .MAX_OCTETS_PER_FRAME(8),
+  .MODE_64B66B_8B10B_N(MODE_64B66B_8B10B_N)
 ) i_up_common (
   .up_clk(s_axi_aclk),
   .ext_resetn(s_axi_aresetn),
