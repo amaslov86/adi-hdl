@@ -47,15 +47,20 @@
 module jesd204_rx #(
   parameter NUM_LANES = 1,
   parameter NUM_LINKS = 1,
-  parameter NUM_INPUT_PIPELINE = 1
+  parameter NUM_INPUT_PIPELINE = 1,
+  parameter MODE_64B66B_8B10B_N = 0,
+  /* Only 4 is supported at the moment for 8b/10b and 8 for 64b */
+  parameter DATA_PATH_WIDTH = MODE_64B66B_8B10B_N ? 8 : 4
 ) (
   input clk,
   input reset,
 
-  input [32*NUM_LANES-1:0] phy_data,
-  input [4*NUM_LANES-1:0] phy_charisk,
-  input [4*NUM_LANES-1:0] phy_notintable,
-  input [4*NUM_LANES-1:0] phy_disperr,
+  input [DATA_PATH_WIDTH*8*NUM_LANES-1:0] phy_data,
+  input [2*NUM_LANES-1:0] phy_header,
+  input [DATA_PATH_WIDTH*NUM_LANES-1:0] phy_charisk,
+  input [DATA_PATH_WIDTH*NUM_LANES-1:0] phy_notintable,
+  input [DATA_PATH_WIDTH*NUM_LANES-1:0] phy_disperr,
+  input [NUM_LANES-1:0] phy_block_sync,
 
   input sysref,
   output lmfc_lemc_edge,
@@ -68,10 +73,10 @@ module jesd204_rx #(
 
   output phy_en_char_align,
 
-  output [32*NUM_LANES-1:0] rx_data,
+  output [DATA_PATH_WIDTH*8*NUM_LANES-1:0] rx_data,
   output rx_valid,
-  output [3:0] rx_eof,
-  output [3:0] rx_sof,
+  output [DATA_PATH_WIDTH-1:0] rx_eof,
+  output [DATA_PATH_WIDTH-1:0] rx_sof,
 
   input [NUM_LANES-1:0] cfg_lanes_disable,
   input [NUM_LINKS-1:0] cfg_links_disable,
@@ -86,7 +91,7 @@ module jesd204_rx #(
   input cfg_disable_scrambler,
 
   input ctrl_err_statistics_reset,
-  input [2:0] ctrl_err_statistics_mask,
+  input [6:0] ctrl_err_statistics_mask,
 
   output [32*NUM_LANES-1:0] status_err_statistics_cnt,
 
@@ -97,7 +102,8 @@ module jesd204_rx #(
   output [1:0] status_ctrl_state,
   output [2*NUM_LANES-1:0] status_lane_cgs_state,
   output [NUM_LANES-1:0] status_lane_ifs_ready,
-  output [14*NUM_LANES-1:0] status_lane_latency
+  output [14*NUM_LANES-1:0] status_lane_latency,
+  output [3*NUM_LANES-1:0] status_lane_emb_state
 );
 
 /*
@@ -107,9 +113,6 @@ module jesd204_rx #(
 localparam CHAR_INFO_REGISTERED = 0;
 localparam ALIGN_MUX_REGISTERED = 0;
 localparam SCRAMBLER_REGISTERED = 0;
-
-/* Only 4 is supported at the moment */
-localparam DATA_PATH_WIDTH = 4;
 
 /*
  * Maximum number of octets per multiframe for ADI JESD204 DACs is 256 (Adjust
@@ -133,6 +136,7 @@ localparam LMFC_COUNTER_WIDTH = MAX_BEATS_PER_MULTIFRAME > 256 ? 9 :
 /* Helper for common expressions */
 localparam DW = 8*DATA_PATH_WIDTH*NUM_LANES;
 localparam CW = DATA_PATH_WIDTH*NUM_LANES;
+localparam HW = 2*NUM_LANES;
 
 wire [NUM_LANES-1:0] cgs_reset;
 wire [NUM_LANES-1:0] cgs_ready;
@@ -145,9 +149,11 @@ wire [NUM_LANES-1:0] buffer_ready_n;
 reg eof_reset = 1'b1;
 
 wire [DW-1:0] phy_data_r;
+wire [HW-1:0] phy_header_r;
 wire [CW-1:0] phy_charisk_r;
 wire [CW-1:0] phy_notintable_r;
 wire [CW-1:0] phy_disperr_r;
+wire [NUM_LANES-1:0] phy_block_sync_r;
 
 wire [DW-1:0] rx_data_s;
 
@@ -183,21 +189,25 @@ always @(posedge clk) begin
 end
 
 pipeline_stage #(
-  .WIDTH(3 * CW + DW),
+  .WIDTH(NUM_LANES + (3 * CW) + HW + DW),
   .REGISTERED(NUM_INPUT_PIPELINE)
 ) i_input_pipeline_stage (
   .clk(clk),
   .in({
     phy_data,
+    phy_header,
     phy_charisk,
     phy_notintable,
-    phy_disperr
+    phy_disperr,
+    phy_block_sync
   }),
   .out({
     phy_data_r,
+    phy_header_r,
     phy_charisk_r,
     phy_notintable_r,
-    phy_disperr_r
+    phy_disperr_r,
+    phy_block_sync_r
   })
 );
 
@@ -229,10 +239,18 @@ jesd204_lmfc i_lmfc (
   .lmfc_lemc_edge(lmfc_lemc_edge),
   .lmfc_lemc_clk(lmfc_lemc_clk),
   .lmfc_lemc_counter(lmfc_lemc_counter),
+  .lmc_edge(),
+  .lmc_quarter_edge(),
+  .eoemb(),
 
   .sysref_edge(event_sysref_edge),
   .sysref_alignment_error(event_sysref_alignment_error)
 );
+
+generate
+genvar i;
+
+if (MODE_64B66B_8B10B_N == 0) begin : mode_8b10b
 
 jesd204_rx_ctrl #(
   .NUM_LANES(NUM_LANES),
@@ -277,8 +295,6 @@ jesd204_eof_generator  #(
   .eomf()
 );
 
-genvar i;
-generate
 for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
 
   localparam D_START = i * DATA_PATH_WIDTH*8;
@@ -314,7 +330,7 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
     .buffer_ready_n(buffer_ready_n[i]),
 
     .ctrl_err_statistics_reset(ctrl_err_statistics_reset),
-    .ctrl_err_statistics_mask(ctrl_err_statistics_mask),
+    .ctrl_err_statistics_mask(ctrl_err_statistics_mask[2:0]),
     .status_err_statistics_cnt(status_err_statistics_cnt[32*i+31:32*i]),
 
     .ilas_config_valid(ilas_config_valid[i]),
@@ -326,7 +342,6 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
     .status_frame_align(frame_align[2*i+1:2*i])
   );
 end
-endgenerate
 
 /* Delay matching based on the number of pipeline stages */
 reg [NUM_LANES-1:0] ifs_ready_d1 = 1'b0;
@@ -357,5 +372,82 @@ jesd204_lane_latency_monitor #(
   .lane_latency_ready(status_lane_ifs_ready),
   .lane_latency(status_lane_latency)
 );
+
+end
+
+if (MODE_64B66B_8B10B_N == 1) begin : mode_64b66b
+
+wire [NUM_LANES-1:0] emb_lock;
+
+jesd204_rx_ctrl_64b  #(
+  .NUM_LANES(NUM_LANES)
+) i_jesd204_rx_ctrl_64b (
+  .clk(clk),
+  .reset(reset),
+
+  .cfg_lanes_disable(cfg_lanes_disable),
+
+  .phy_block_sync(phy_block_sync_r),
+  .emb_lock(emb_lock),
+
+  .status_state(status_ctrl_state)
+);
+
+for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
+
+  localparam D_START = i * DATA_PATH_WIDTH*8;
+  localparam D_STOP = D_START + DATA_PATH_WIDTH*8-1;
+  localparam H_START = i * 2;
+  localparam H_STOP = H_START + 2-1;
+
+  jesd204_rx_lane_64b #(
+    .ELASTIC_BUFFER_SIZE(ELASTIC_BUFFER_SIZE)
+  ) i_lane (
+    .clk(clk),
+    .reset(reset),
+
+    .phy_data(phy_data_r[D_STOP:D_START]),
+    .phy_header(phy_header_r[H_STOP:H_START]),
+    .phy_block_sync(phy_block_sync_r[i]),
+
+    .cfg_disable_scrambler(cfg_disable_scrambler),
+    .cfg_header_mode(2'b0),
+    .cfg_rx_thresh_emb_err(5'd8),
+    .cfg_beats_per_multiframe(cfg_beats_per_multiframe),
+
+    .rx_data(rx_data_s[D_STOP:D_START]),
+
+    .buffer_release_n(buffer_release_n),
+    .buffer_ready_n(buffer_ready_n[i]),
+
+    .emb_lock(emb_lock[i]),
+
+    .ctrl_err_statistics_reset(ctrl_err_statistics_reset),
+    .ctrl_err_statistics_mask(ctrl_err_statistics_mask[6:3]),
+    .status_err_statistics_cnt(status_err_statistics_cnt[32*i+31:32*i]),
+
+    .status_lane_emb_state(status_lane_emb_state[3*i+2:3*i])
+  );
+
+end
+
+// Assign unused outputs 
+assign sync = 'b0;
+assign phy_en_char_align = 1'b0;
+assign rx_eof = 'b0;
+assign rx_sof = 'b0;
+
+assign ilas_config_valid ='b0;
+assign ilas_config_addr = 'b0;
+assign ilas_config_data = 'b0;
+assign status_lane_cgs_state = 'b0;
+assign status_lane_ifs_ready = 'b0;
+assign status_lane_latency = 'b0;
+
+end
+
+
+endgenerate
+
 
 endmodule

@@ -12,7 +12,10 @@ GENERIC_DEPS += jesd204_lane_latency_monitor.v
 GENERIC_DEPS += jesd204_rx.v
 GENERIC_DEPS += jesd204_rx_cgs.v
 GENERIC_DEPS += jesd204_rx_ctrl.v
+GENERIC_DEPS += jesd204_rx_ctrl_64b.v
+GENERIC_DEPS += jesd204_rx_header.v
 GENERIC_DEPS += jesd204_rx_lane.v
+GENERIC_DEPS += jesd204_rx_lane_64b.v
 
 XILINX_DEPS += jesd204_rx_constr.ttcl
 XILINX_DEPS += jesd204_rx_ip.tcl
