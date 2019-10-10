@@ -322,7 +322,6 @@ module loopback_64b_tb;
     .status_lane_cgs_state(),
     .status_lane_emb_state(status_lane_emb_state)
   );
-
   integer ii;
   reg rx_status_mismatch = 1'b0;
   initial begin
