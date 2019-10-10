@@ -367,8 +367,6 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
   end
 end
 
-
-
 /* Delay matching based on the number of pipeline stages */
 reg [NUM_LANES-1:0] ifs_ready_d1 = 1'b0;
 reg [NUM_LANES-1:0] ifs_ready_d2 = 1'b0;
@@ -461,7 +459,7 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
 assign status_lane_latency[14*(i+1)-1:14*i] = {3'b0,status_lane_skew,3'b0};
 end
 
-// Assign unused outputs
+// Assign unused outputs 
 assign sync = 'b0;
 assign phy_en_char_align = 1'b0;
 

@@ -158,11 +158,6 @@ adi_set_ports_dependency "phy_en_char_align" \
 
 set cc [ipx::current_core]
 
-set_property -dict [list \
-  driver_value 0 \
-] [ipx::get_ports phy_header -of_objects $cc]
-
-# Arrange GUI page layout
 set page0 [ipgui::get_pagespec -name "Page 0" -component $cc]
 
 # Link layer mode
@@ -185,7 +180,6 @@ set_property -dict [list \
   enablement_value false \
   value_tcl_expr {expr $LINK_MODE*4} \
 ] $param
-
 
 set param [ipx::add_user_parameter SYSREF_IOB $cc]
 set_property -dict {value_resolve_type user value_format bool value true} $param
