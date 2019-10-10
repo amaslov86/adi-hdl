@@ -150,7 +150,6 @@ wire [NUM_LANES-1:0] ifs_reset;
 reg buffer_release_n = 1'b1;
 reg buffer_release_d1 = 1'b0;
 wire [NUM_LANES-1:0] buffer_ready_n;
-wire all_buffer_ready_n;
 
 reg eof_reset = 1'b1;
 
@@ -184,14 +183,13 @@ always @(posedge clk) begin
   end
 end
 
-assign all_buffer_ready_n = |(buffer_ready_n & ~cfg_lanes_disable);
 
 always @(posedge clk) begin
   if (reset == 1'b1) begin
     buffer_release_n <= 1'b1;
   end else begin
     if (buffer_release_opportunity == 1'b1) begin
-      buffer_release_n <= all_buffer_ready_n;
+      buffer_release_n <= |(buffer_ready_n & ~cfg_lanes_disable);
     end
   end
   buffer_release_d1 <= ~buffer_release_n;
@@ -450,9 +448,6 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
 
     .buffer_release_n(buffer_release_n),
     .buffer_ready_n(buffer_ready_n[i]),
-    .all_buffer_ready_n(all_buffer_ready_n),
-
-    .lmfc_edge(lmfc_edge),
     .emb_lock(emb_lock[i]),
 
     .ctrl_err_statistics_reset(ctrl_err_statistics_reset),

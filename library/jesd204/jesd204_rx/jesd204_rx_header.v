@@ -63,7 +63,6 @@ module jesd204_rx_header (
   output [2:0] crc3,
   output [25:0] fec,
   output [18:0] cmd,
-  output reg [7:0] sh_count = 'h0,
 
   output [2:0] status_lane_emb_state,
   output reg event_invalid_header,
@@ -123,6 +122,7 @@ assign eomb  = sync_word[4:0] == 5'b00001;
 assign eoemb = sync_word[9] & eomb;
 
 
+reg [7:0] sh_count = 'h0;
 always @(posedge clk) begin
   if (next_state[BIT_EMB_INIT] || sh_count == cfg_beats_per_multiframe) begin
     sh_count <= 'h0;

@@ -56,8 +56,6 @@ module jesd204_rx_ctrl_64b #(
 
   input [NUM_LANES-1:0] emb_lock,
 
-  output all_emb_lock,
-  input buffer_release_n,
 
   output [1:0] status_state
 );
@@ -76,6 +74,7 @@ reg rst_good_cnt;
 wire [NUM_LANES-1:0] phy_block_sync_masked;
 wire [NUM_LANES-1:0] emb_lock_masked;
 wire all_block_sync;
+wire all_emb_lock;
 
 assign phy_block_sync_masked = phy_block_sync | cfg_lanes_disable;
 assign emb_lock_masked = emb_lock | cfg_lanes_disable;
@@ -99,7 +98,7 @@ always @(*) begin
     STATE_BLOCK_SYNC:
       if (~all_block_sync) begin
         next_state = STATE_WAIT_BS;
-      end else if (all_emb_lock & ~buffer_release_n) begin
+      end else if (all_emb_lock) begin
         rst_good_cnt = 1'b0;
         if (&good_cnt) begin
           next_state = STATE_DATA;
@@ -108,7 +107,7 @@ always @(*) begin
     STATE_DATA:
       if (~all_block_sync) begin
         next_state = STATE_WAIT_BS;
-      end else if (~all_emb_lock | buffer_release_n) begin
+      end else if (~all_emb_lock) begin
         next_state = STATE_BLOCK_SYNC;
       end
   endcase
