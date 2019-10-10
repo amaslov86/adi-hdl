@@ -395,7 +395,6 @@ jesd204_rx_ctrl_64b  #(
 
   .all_emb_lock(all_emb_lock),
   .buffer_release_n(buffer_release_n),
-
   .status_state(status_ctrl_state)
 );
 
@@ -407,7 +406,6 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
   localparam H_STOP = H_START + 2-1;
 
   wire [7:0] status_lane_skew;
-
   jesd204_rx_lane_64b #(
     .ELASTIC_BUFFER_SIZE(ELASTIC_BUFFER_SIZE)
   ) i_lane (
@@ -441,7 +439,6 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
   );
 
 assign status_lane_latency[14*(i+1)-1:14*i] = {3'b0,status_lane_skew,3'b0};
-
 end
 
 // Assign unused outputs 

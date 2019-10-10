@@ -55,11 +55,10 @@ module jesd204_rx_header (
   input [4:0] cfg_rx_thresh_emb_err,
   input [7:0] cfg_beats_per_multiframe,
 
-  output emb_lock,
+  output emb_lock_n,
 
-  output valid_eomb,
-  output valid_eoemb,
-  // Received header data qualified by valid_eomb
+  output eomb,
+  // Received header data qualified by eomb
   output [11:0] crc12,
   output [2:0] crc3,
   output [25:0] fec,
@@ -93,8 +92,6 @@ wire invalid_eomb;
 wire [6:0] cmd0;
 wire [6:0] cmd1;
 wire [18:0] cmd3;
-wire eoemb;
-wire eomb;
 
 assign header_bit = header == 2'b01;
 
@@ -180,8 +177,6 @@ end
 
 assign invalid_eoemb = (sh_count == 0 && ~eoemb);
 assign invalid_eomb = (sh_count[4:0] == 0 && ~eomb);
-assign valid_eomb = next_state[BIT_EMB_LOCK] && eomb;
-assign valid_eoemb = next_state[BIT_EMB_LOCK] && eoemb;
 
 assign invalid_sequence = (invalid_eoemb || invalid_eomb);
 
@@ -193,7 +188,7 @@ always @(posedge clk) begin
   end
 end
 
-assign emb_lock = next_state[BIT_EMB_LOCK];
+assign emb_lock_n = ~state[BIT_EMB_LOCK];
 
 // Status & error events
 assign status_lane_emb_state = state;
