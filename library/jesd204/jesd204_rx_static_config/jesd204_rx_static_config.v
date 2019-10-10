@@ -51,7 +51,7 @@ module jesd204_rx_static_config #(
   parameter FRAMES_PER_MULTIFRAME = 32,
   parameter SCR = 1,
   parameter BUFFER_EARLY_RELEASE = 0,
-  parameter LINK_MODE = 1 // 2 - 64B/66B;  1 - 8B/10B
+  parameter LINK_MODE = 0 // 2 - 64B/66B;  1 - 8B/10B
 ) (
   input clk,
 
