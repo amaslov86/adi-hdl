@@ -99,7 +99,6 @@ module loopback_64b_tb;
   wire [NUM_LANES*2-1:0] phy_header_out;
   wire [NUM_LANES*64-1:0] phy_data_in;
   wire [NUM_LANES*2-1:0] phy_header_in;
-  
   reg [NUM_LANES-1:0] phy_block_sync = {NUM_LANES{1'b1}};
 
   reg [5:0] sysref_counter = 'h00;
