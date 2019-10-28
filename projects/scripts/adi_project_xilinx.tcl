@@ -59,32 +59,32 @@ proc adi_project {project_name {mode 0} {parameter_list {}} } {
 
   if [regexp "_ac701$" $project_name] {
     set p_device "xc7a200tfbg676-2"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *ac701*] end]
+    set p_board "xilinx.com:ac701:part0:1.4"
     set sys_zynq 0
   }
   if [regexp "_kc705$" $project_name] {
     set p_device "xc7k325tffg900-2"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *kc705*] end]
+    set p_board "xilinx.com:kc705:part0:1.6"
     set sys_zynq 0
   }
   if [regexp "_vc707$" $project_name] {
     set p_device "xc7vx485tffg1761-2"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *vc707*] end]
+    set p_board "xilinx.com:vc707:part0:1.4"
     set sys_zynq 0
   }
   if [regexp "_vcu118$" $project_name] {
     set p_device "xcvu9p-flga2104-2L-e"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *vcu118*] end]
+    set p_board "xilinx.com:vcu118:part0:2.3"
     set sys_zynq 0
   }
   if [regexp "_kcu105$" $project_name] {
     set p_device "xcku040-ffva1156-2-e"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *kcu105*] end]
+    set p_board "xilinx.com:kcu105:part0:1.6"
     set sys_zynq 0
   }
   if [regexp "_zed$" $project_name] {
     set p_device "xc7z020clg484-1"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *zed*] end]
+    set p_board "em.avnet.com:zed:part0:1.3"
     set sys_zynq 1
   }
   if [regexp "_coraz7s$" $project_name] {
@@ -99,12 +99,12 @@ proc adi_project {project_name {mode 0} {parameter_list {}} } {
   }
   if [regexp "_zc702$" $project_name] {
     set p_device "xc7z020clg484-1"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *zc702*] end]
+    set p_board "xilinx.com:zc702:part0:1.4"
     set sys_zynq 1
   }
   if [regexp "_zc706$" $project_name] {
     set p_device "xc7z045ffg900-2"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *zc706*] end]
+    set p_board "xilinx.com:zc706:part0:1.4"
     set sys_zynq 1
   }
   if [regexp "_mitx045$" $project_name] {
@@ -114,7 +114,7 @@ proc adi_project {project_name {mode 0} {parameter_list {}} } {
   }
   if [regexp "_zcu102$" $project_name] {
     set p_device "xczu9eg-ffvb1156-2-e"
-    set p_board [lindex [lsearch -all -inline [get_board_parts] *zcu102*] end]
+    set p_board "xilinx.com:zcu102:part0:3.3"
     set sys_zynq 2
   }
 
@@ -281,77 +281,8 @@ proc adi_project_run {project_name} {
         puts "GENERATE_REPORTS: tclapp::xilinx::designutils not installed"
       }
 
-      # Define a list of IPs for which to generate report utilization
-      set IP_list {
-        ad_ip_jesd_204_tpl_adc
-        ad_ip_jesd_204_tpl_dac
-        axi_jesd204_rx
-        axi_jesd204_tx
-        jesd204_rx
-        jesd204_tx
-        axi_adxcvr
-        util_adxcvr
-        axi_dmac
-        util_cpack2
-        util_upack2
-      }
-
-      foreach IP_name $IP_list {
-	set output_file ${IP_name}_resource_utilization.log
-        file delete $output_file
-        foreach IP_instance [ get_cells -quiet -hierarchical -filter " ORIG_REF_NAME =~ $IP_name || REF_NAME =~ $IP_name " ] {
-          report_utilization -hierarchical -hierarchical_depth 1 -cells $IP_instance -file $output_file -append -quiet
-          report_property $IP_instance -file $output_file -append -quiet
-          set report_file [ open $output_file a ]
-          puts $report_file "\n\n\n"
-          close $report_file
-        }
-      }
     } else {
     puts "GENERATE_REPORTS: Resource utilization files won't be generated because ADI_GENERATE_UTILIZATION env var is not set"
-  }
-
-  if {[info exists ::env(ADI_GENERATE_XPA)]} {
-    set csv_file power_analysis.csv
-    set Layers "8to11"
-    set CapLoad "20"
-    set ToggleRate "15.00000"
-    set StatProb "0.500000"
-
-    set_load $CapLoad [all_outputs]
-    set_operating_conditions -board_layers $Layers
-    set_switching_activity -default_toggle_rate $ToggleRate
-    set_switching_activity -default_static_probability $StatProb
-    set_switching_activity -type lut -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type register -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type shift_register -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type lut_ram -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type bram -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type dsp -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type gt_rxdata -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type gt_txdata -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type io_output -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type bram_enable -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type bram_wr_enable -toggle_rate $ToggleRate -static_probability $StatProb -all
-    set_switching_activity -type io_bidir_enable -toggle_rate $ToggleRate -static_probability $StatProb -all
-    report_power -file $csv_file
-
-    set fileRead [open $csv_file r]
-    set filecontent [read $fileRead]
-    set input_list [split $filecontent "\n"]
-
-    set TextList [lsearch -all -inline $input_list "*Total On-Chip Power (W)*"]
-    set on_chip_pwr "[lindex [lindex $TextList 0] 6] W"
-    set TextList [lsearch -all -inline $input_list "*Junction Temperature (C)*"]
-    set junction_temp "[lindex [lindex $TextList 0] 5] *C"
-    close $fileRead
-
-    set fileWrite [open $csv_file w]
-    puts $fileWrite "On-chip_power,Junction_temp"
-    puts $fileWrite "$on_chip_pwr,$junction_temp"
-    close $fileWrite
-  } else {
-    puts "GENERATE_REPORTS: Power analysis files won't be generated because ADI_GENERATE_XPA env var is not set"
   }
 
   # Look for undefined clocks which do not show up in the timing summary
