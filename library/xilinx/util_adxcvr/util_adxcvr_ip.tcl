@@ -857,8 +857,6 @@ set param [ipx::get_user_parameters TX_PI_BIASSET -of_objects $cc]
 set_property -dict [list \
   value_tcl_expr {expr {$XCVR_TYPE == 9} ? 0 : 1} \
 ] $param
-
-
 ipx::create_xgui_files [ipx::current_core]
 
 ipx::save_core [ipx::current_core]
