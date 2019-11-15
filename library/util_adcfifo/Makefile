@@ -12,6 +12,7 @@ GENERIC_DEPS += util_adcfifo.v
 XILINX_DEPS += ../common/ad_mem_asym.v
 XILINX_DEPS += util_adcfifo_constr.xdc
 XILINX_DEPS += util_adcfifo_ip.tcl
+XILINX_DEPS += util_adcfifo_ooc.ttcl
 
 XILINX_LIB_DEPS += util_cdc
 
