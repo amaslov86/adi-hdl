@@ -2784,7 +2784,7 @@ module util_adxcvr_xch #(
       .RX_EN_SUM_RCAL_B (0),
       .RX_EYESCAN_VS_CODE (7'b0000000),
       .RX_EYESCAN_VS_NEG_DIR (1'b0),
-      .RX_EYESCAN_VS_RANGE (2'b10),
+      .RX_EYESCAN_VS_RANGE (2'b00),
       .RX_EYESCAN_VS_UT_SIGN (1'b0),
       .RX_FABINT_USRCLK_FLOP (1'b0),
       .RX_I2V_FILTER_EN (1'b1),
