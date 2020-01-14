@@ -280,7 +280,12 @@ proc adi_project_run {project_name} {
       } issue ] != 0 } {
         puts "GENERATE_REPORTS: tclapp::xilinx::designutils not installed"
       }
-  } else {
+
+      report_utilization -hierarchical -hierarchical_depth 1 -hierarchical_percentages -cells { */*/*_jesd */*/*_tpp_* */*/*_xcvr } -file IPs_resource_utilization.log -append -quiet
+      report_utilization -hierarchical -hierarchical_depth 1 -hierarchical_percentages -cells { */*/*_cpack } -file IPs_resource_utilization.log -append -quiet
+      report_utilization -hierarchical -hierarchical_depth 1 -hierarchical_percentages -cells { */*/*_upack } -file IPs_resource_utilization.log -append -quiet
+      report_utilization -hierarchical -hierarchical_depth 1 -hierarchical_percentages -cells { */*/*_dmac } -file IPs_resource_utilization.log -append -quiet
+    } else {
     puts "GENERATE_REPORTS: Resource utilization files won't be generated because ADI_GENERATE_UTILIZATION env var is not set"
   }
 
