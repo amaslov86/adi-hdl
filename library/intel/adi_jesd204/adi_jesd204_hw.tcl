@@ -300,6 +300,7 @@ proc jesd204_compose {} {
   set_instance_parameter_value link_pll {gui_reference_clock_frequency} $refclk_frequency
   set_instance_parameter_value link_pll {gui_number_of_output_clocks} 1
 #  set_instance_parameter_value link_pll {gui_enable_phase_alignment} 1
+  set_instance_parameter_value link_pll {gui_bw_sel} {low}
   set_instance_parameter_value link_pll {gui_desired_outclk0_frequency} $linkclk_frequency
 #  set pfdclk_frequency [get_instance_parameter_value link_pll gui_pfd_frequency]
 #  set_instance_parameter_value link_pll {gui_desired_outclk1_frequency} $pfdclk_frequency
