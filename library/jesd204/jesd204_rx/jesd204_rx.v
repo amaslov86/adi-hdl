@@ -151,6 +151,7 @@ reg buffer_release_n = 1'b1;
 reg buffer_release_d1 = 1'b0;
 wire [NUM_LANES-1:0] buffer_ready_n;
 
+reg core_reset;
 reg eof_reset = 1'b1;
 
 wire [DW-1:0] phy_data_r;
@@ -236,7 +237,7 @@ pipeline_stage #(
 
 jesd204_lmfc i_lmfc (
   .clk(clk),
-  .reset(reset),
+  .reset(core_reset),
 
   .cfg_beats_per_multiframe(cfg_beats_per_multiframe),
   .cfg_lmfc_offset(cfg_lmfc_offset),
@@ -282,7 +283,7 @@ jesd204_rx_ctrl #(
   .NUM_LINKS(NUM_LINKS)
 ) i_rx_ctrl (
   .clk(clk),
-  .reset(reset),
+  .reset(core_reset),
 
   .cfg_lanes_disable(cfg_lanes_disable),
   .cfg_links_disable(cfg_links_disable),
@@ -304,6 +305,31 @@ jesd204_rx_ctrl #(
   .status_state(status_ctrl_state)
 );
 
+// Reset core when frame alignment errors occur
+if(ENABLE_FRAME_ALIGN_CHECK && ENABLE_FRAME_ALIGN_ERR_RESET) begin : gen_frame_align_err_reset
+
+  reg [7:0] reset_cnt;
+
+  always @(posedge clk) begin
+    if(reset) begin
+      reset_cnt <= 8'h00;
+    end else begin
+      if(|frame_align_err_thresh_met) begin
+        reset_cnt <= 8'hFF;
+      end else if(reset_cnt != 0) begin
+        reset_cnt <= reset_cnt - 1'b1;
+      end
+    end
+
+    core_reset <= reset | (reset_cnt != 0);
+  end
+
+end else begin : gen_no_frame_align_err_reset
+  always @(*) begin
+    core_reset = reset;
+  end
+end
+
 for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
 
   localparam D_START = i * DATA_PATH_WIDTH*8;
@@ -320,7 +346,7 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
     .ENABLE_FRAME_ALIGN_CHECK(ENABLE_FRAME_ALIGN_CHECK)
   ) i_lane (
     .clk(clk),
-    .reset(reset),
+    .reset(core_reset),
 
     .phy_data(phy_data_r[D_STOP:D_START]),
     .phy_charisk(phy_charisk_r[C_STOP:C_START]),
@@ -405,11 +431,15 @@ if (LINK_MODE[1] == 1) begin : mode_64b66b
 
 wire [NUM_LANES-1:0] emb_lock;
 
+always @(*) begin
+  core_reset = reset;
+end
+
 jesd204_rx_ctrl_64b  #(
   .NUM_LANES(NUM_LANES)
 ) i_jesd204_rx_ctrl_64b (
   .clk(clk),
-  .reset(reset),
+  .reset(core_reset),
 
   .cfg_lanes_disable(cfg_lanes_disable),
 
@@ -433,7 +463,7 @@ for (i = 0; i < NUM_LANES; i = i + 1) begin: gen_lane
     .ELASTIC_BUFFER_SIZE(ELASTIC_BUFFER_SIZE)
   ) i_lane (
     .clk(clk),
-    .reset(reset),
+    .reset(core_reset),
 
     .phy_data(phy_data_r[D_STOP:D_START]),
     .phy_header(phy_header_r[H_STOP:H_START]),
