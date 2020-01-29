@@ -55,6 +55,7 @@ module jesd204_up_rx_lane (
   input [1:0] up_status_cgs_state,
   input [31:0] up_status_err_statistics_cnt,
   input [2:0] up_status_emb_state,
+  input [7:0] up_status_lane_frame_align_err_cnt,
 
   input core_clk,
   input core_reset,
@@ -108,7 +109,9 @@ always @(*) begin
   end else begin
     case (up_raddr[1:0])
     2'b00: up_rdata <= {
-      /* 06-31 */ 26'h00, /* Reserved for future use */
+      /* 24-31 */ 8'h0, /* Reserved for future use */
+      /* 12-23 */ up_status_lane_frame_align_err_cnt,
+      /*    11 */ 1'h0, /* Reserved for future use */
       /* 08-10 */ up_status_emb_state,
       /* 06-07 */ 2'h00,
       /*    05 */ up_ilas_ready,
