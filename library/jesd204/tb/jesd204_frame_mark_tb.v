@@ -44,36 +44,34 @@
 
 `timescale 1ns/100ps
 
-module align_mux #(
-  parameter DATA_PATH_WIDTH = 4
-) (
-  input clk,
-  input [2:0] align,
-  input [DATA_PATH_WIDTH*8-1:0] in_data,
-  input [DATA_PATH_WIDTH-1:0] in_charisk,
-  output [DATA_PATH_WIDTH*8-1:0] out_data,
-  output [DATA_PATH_WIDTH-1:0] out_charisk
+module jesd204_frame_mark_tb;
+
+
+parameter VCD_FILE = "jesd204_frame_mark_tb.vcd";
+`define TIMEOUT 1000000
+`include "tb_base.v"
+
+localparam DATA_PATH_WIDTH = 8;
+
+wire [9:0]                  cfg_octets_per_multiframe = 23;
+wire [7:0]                  cfg_octets_per_frame = 5;
+wire [DATA_PATH_WIDTH-1:0]  sof;
+wire [DATA_PATH_WIDTH-1:0]  somf;
+wire [DATA_PATH_WIDTH-1:0]  eof;
+wire [DATA_PATH_WIDTH-1:0]  eomf;
+
+
+jesd204_frame_mark #(
+  .DATA_PATH_WIDTH            (DATA_PATH_WIDTH)
+) frame_mark (
+  .clk                        (clk),
+  .reset                      (reset),
+  .cfg_octets_per_multiframe  (cfg_octets_per_multiframe),
+  .cfg_octets_per_frame       (cfg_octets_per_frame),
+  .sof                        (sof),
+  .eof                        (eof),
+  .somf                       (somf),
+  .eomf                       (eomf)
 );
-
-localparam DPW_LOG2 = DATA_PATH_WIDTH == 8 ? 3 : DATA_PATH_WIDTH == 4 ? 2 : 1;
-
-wire [DPW_LOG2-1:0]                align_int;
-reg  [DATA_PATH_WIDTH*8-1:0]       in_data_d1;
-reg  [DATA_PATH_WIDTH-1:0]         in_charisk_d1;
-wire [(DATA_PATH_WIDTH*8*2)-1:0]   data;
-wire [(DATA_PATH_WIDTH*2)-1:0]     charisk;
-
-always @(posedge clk) begin
-  in_data_d1 <= in_data;
-  in_charisk_d1 <= in_charisk;
-end
-
-assign data = {in_data, in_data_d1};
-assign charisk = {in_charisk, in_charisk_d1};
-
-assign align_int = align[DPW_LOG2-1:0];
-
-assign out_data = data[align_int*8 +: (DATA_PATH_WIDTH*8)];
-assign out_charisk = charisk[align_int +: DATA_PATH_WIDTH];
 
 endmodule
