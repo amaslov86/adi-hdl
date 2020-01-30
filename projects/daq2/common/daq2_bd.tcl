@@ -2,18 +2,6 @@
 source $ad_hdl_dir/library/jesd204/scripts/jesd204.tcl
 source $ad_hdl_dir/projects/common/xilinx/data_offload_bd.tcl
 
-set adc_offload_name axi_ad9680_offload
-set adc_offload_type 0                      ; ## BRAM
-set adc_offload_size 512000                 ; ## 512 kbyte
-set adc_offload_src_width 128
-set adc_offload_dst_width 64
-
-set dac_offload_name axi_ad9144_offload
-set dac_offload_type 0                      ; ## BRAM
-set dac_offload_size 512000                 ; ## 512 kbyte
-set dac_offload_src_dwidth 128
-set dac_offload_dst_dwidth 128
-
 # dac peripherals
 
 ad_ip_instance axi_adxcvr axi_ad9144_xcvr [list \
@@ -95,7 +83,9 @@ ad_data_offload_create axi_ad9680_offload \
                        $adc_offload_type \
                        $adc_offload_size \
                        $adc_offload_src_width \
-                       $adc_offload_dst_width
+                       $adc_offload_dst_width \
+                       $adc_offload_axi_data_width \
+                       $adc_offload_axi_addr_width
 
 # synchronization interface
 ad_connect axi_ad9680_offload/init_req GND
