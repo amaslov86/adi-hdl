@@ -7,12 +7,12 @@ set p_device "xczu11eg-ffvf1517-2-i"
 set sys_zynq 2
 
 adi_project adrv9009zu11eg 0 [list \
-  JESD_RX_M 8 \
-  JESD_RX_L 4 \
-  JESD_TX_M 8 \
-  JESD_TX_L 8 \
-  JESD_OBS_M 4 \
-  JESD_OBS_L 4 \
+  JESD_RX_M 4 \
+  JESD_RX_L 2 \
+  JESD_TX_M 4 \
+  JESD_TX_L 4 \
+  JESD_OBS_M 2 \
+  JESD_OBS_L 2 \
 ]
 adi_project_files adrv9009zu11eg [list \
   "system_top.v" \

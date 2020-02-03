@@ -506,24 +506,24 @@ delete_bd_objs [get_bd_intf_nets axi_adrv9009_som_obs_xcvr_up_ch_1]
 
 ad_connect util_adrv9009_som_xcvr/rx_2 axi_adrv9009_som_obs_jesd/rx_phy0
 ad_connect util_adrv9009_som_xcvr/rx_3 axi_adrv9009_som_obs_jesd/rx_phy1
-ad_connect util_adrv9009_som_xcvr/rx_4 axi_adrv9009_som_rx_jesd/rx_phy2
-ad_connect util_adrv9009_som_xcvr/rx_5 axi_adrv9009_som_rx_jesd/rx_phy3
+#ad_connect util_adrv9009_som_xcvr/rx_4 axi_adrv9009_som_rx_jesd/rx_phy2
+#ad_connect util_adrv9009_som_xcvr/rx_5 axi_adrv9009_som_rx_jesd/rx_phy3
 ad_connect axi_adrv9009_som_obs_xcvr/up_es_0 util_adrv9009_som_xcvr/up_es_2
 ad_connect axi_adrv9009_som_obs_xcvr/up_ch_0 util_adrv9009_som_xcvr/up_rx_2
 ad_connect axi_adrv9009_som_obs_xcvr/up_es_1 util_adrv9009_som_xcvr/up_es_3
 ad_connect axi_adrv9009_som_obs_xcvr/up_ch_1 util_adrv9009_som_xcvr/up_rx_3
-ad_connect axi_adrv9009_som_rx_xcvr/up_es_2 util_adrv9009_som_xcvr/up_es_4
-ad_connect axi_adrv9009_som_rx_xcvr/up_ch_2 util_adrv9009_som_xcvr/up_rx_4
-ad_connect axi_adrv9009_som_rx_xcvr/up_es_3 util_adrv9009_som_xcvr/up_es_5
-ad_connect axi_adrv9009_som_rx_xcvr/up_ch_3 util_adrv9009_som_xcvr/up_rx_5
-disconnect_bd_net /core_clk_b_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_2]
-disconnect_bd_net /core_clk_b_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_3]
-disconnect_bd_net /core_clk_a_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_4]
-disconnect_bd_net /core_clk_a_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_5]
-connect_bd_net [get_bd_ports core_clk_a] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_2]
-connect_bd_net [get_bd_ports core_clk_a] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_3]
-connect_bd_net [get_bd_ports core_clk_b] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_4]
-connect_bd_net [get_bd_ports core_clk_b] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_5]
+#ad_connect axi_adrv9009_som_rx_xcvr/up_es_2 util_adrv9009_som_xcvr/up_es_4
+#ad_connect axi_adrv9009_som_rx_xcvr/up_ch_2 util_adrv9009_som_xcvr/up_rx_4
+#ad_connect axi_adrv9009_som_rx_xcvr/up_es_3 util_adrv9009_som_xcvr/up_es_5
+#ad_connect axi_adrv9009_som_rx_xcvr/up_ch_3 util_adrv9009_som_xcvr/up_rx_5
+#disconnect_bd_net /core_clk_b_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_2]
+#disconnect_bd_net /core_clk_b_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_3]
+#disconnect_bd_net /core_clk_a_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_4]
+#disconnect_bd_net /core_clk_a_1 [get_bd_pins util_adrv9009_som_xcvr/rx_clk_5]
+#connect_bd_net [get_bd_ports core_clk_a] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_2]
+#connect_bd_net [get_bd_ports core_clk_a] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_3]
+#connect_bd_net [get_bd_ports core_clk_b] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_4]
+#connect_bd_net [get_bd_ports core_clk_b] [get_bd_pins util_adrv9009_som_xcvr/rx_clk_5]
 
 create_bd_addr_seg -range 0x80000000 -offset 0x00000000 \
     [get_bd_addr_spaces axi_adrv9009_som_obs_dma/m_dest_axi] [get_bd_addr_segs sys_ps8/SAXIGP3/HP1_DDR_LOW] SEG_sys_ps8_HP1_DDR_LOW
