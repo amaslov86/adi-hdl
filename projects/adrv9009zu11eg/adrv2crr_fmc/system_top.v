@@ -138,14 +138,14 @@ module system_top (
 //  output      [ 3:0]  tx_data_b_p,
 //  output      [ 3:0]  tx_data_b_n,
 
-  output              rx_sync_b_p,
-  output              rx_sync_b_n,
-  output              rx_os_sync_b_p,
-  output              rx_os_sync_b_n,
-  input               tx_sync_b_p,
-  input               tx_sync_b_n,
-  input               tx_sync_b_1_p,
-  input               tx_sync_b_1_n,
+//  output              rx_sync_b_p,
+//  output              rx_sync_b_n,
+//  output              rx_os_sync_b_p,
+//  output              rx_os_sync_b_n,
+//  input               tx_sync_b_p,
+//  input               tx_sync_b_n,
+//  input               tx_sync_b_1_p,
+//  input               tx_sync_b_1_n,
   input               sysref_b_p,
   input               sysref_b_n,
 
@@ -260,7 +260,7 @@ module system_top (
   .spi_miso_o(spi0_miso),
   .spi_sdio(spi_sdio));
 
-  assign tx_sync = tx_sync_a & tx_sync_b;
+  assign tx_sync = tx_sync_a;
 
   assign gpio_i[94:90] = gpio_o[94:90];
   assign gpio_i[31:28] = gpio_o[31:28];
@@ -407,10 +407,10 @@ module system_top (
     .IB (tx_sync_a_n),
     .O (tx_sync_a));
 
-  IBUFDS i_ibufds_tx_sync_2 (
-    .I (tx_sync_b_p),
-    .IB (tx_sync_b_n),
-    .O (tx_sync_b));
+//  IBUFDS i_ibufds_tx_sync_2 (
+//    .I (tx_sync_b_p),
+//    .IB (tx_sync_b_n),
+//    .O (tx_sync_b));
 
   OBUFDS i_obufds_rx_sync_1 (
     .I (rx_sync_rx),
@@ -422,15 +422,15 @@ module system_top (
     .O (rx_os_sync_a_p),
     .OB (rx_os_sync_a_n));
 
-  OBUFDS i_obufds_rx_sync_2 (
-    .I (rx_sync_rx),
-    .O (rx_sync_b_p),
-    .OB (rx_sync_b_n));
+//  OBUFDS i_obufds_rx_sync_2 (
+//    .I (rx_sync_rx),
+//    .O (rx_sync_b_p),
+//    .OB (rx_sync_b_n));
 
-  OBUFDS i_obufds_rx_os_sync_2 (
-    .I (rx_sync_obs),
-    .O (rx_os_sync_b_p),
-    .OB (rx_os_sync_b_n));
+//  OBUFDS i_obufds_rx_os_sync_2 (
+//    .I (rx_sync_obs),
+//    .O (rx_os_sync_b_p),
+//    .OB (rx_os_sync_b_n));
 
   system_wrapper i_system_wrapper (
     .gpio_i (gpio_i),
