@@ -32,6 +32,7 @@ set_instance_parameter_value adrv9009_rx_jesd204 {TX_OR_RX_N} {0}
 set_instance_parameter_value adrv9009_rx_jesd204 {SOFT_PCS} {true}
 set_instance_parameter_value adrv9009_rx_jesd204 {LANE_RATE} {9830.4}
 set_instance_parameter_value adrv9009_rx_jesd204 {REFCLK_FREQUENCY} {245.76}
+set_instance_parameter_value adrv9009_rx_jesd204 {INPUT_PIPELINE_STAGES} {1}
 set_instance_parameter_value adrv9009_rx_jesd204 {NUM_OF_LANES} {2}
 
 add_connection sys_clk.clk adrv9009_rx_jesd204.sys_clk
@@ -53,6 +54,7 @@ set_instance_parameter_value adrv9009_rx_os_jesd204 {TX_OR_RX_N} {0}
 set_instance_parameter_value adrv9009_rx_os_jesd204 {SOFT_PCS} {true}
 set_instance_parameter_value adrv9009_rx_os_jesd204 {LANE_RATE} {9830.4}
 set_instance_parameter_value adrv9009_rx_os_jesd204 {REFCLK_FREQUENCY} {245.76}
+set_instance_parameter_value adrv9009_rx_os_jesd204 {INPUT_PIPELINE_STAGES} {1}
 set_instance_parameter_value adrv9009_rx_os_jesd204 {NUM_OF_LANES} {2}
 
 add_connection sys_clk.clk adrv9009_rx_os_jesd204.sys_clk
