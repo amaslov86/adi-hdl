@@ -108,7 +108,7 @@ module axi_adxcvr_up #(
 
   always @(negedge up_rstn or posedge up_clk) begin
     if (up_rstn == 0) begin
-      up_resetn <= 'd0;
+      up_resetn <= 'd1;
     end else begin
       if ((up_wreq == 1'b1) && (up_waddr == 10'h004)) begin
         up_resetn <= up_wdata[0];
@@ -124,7 +124,7 @@ module axi_adxcvr_up #(
 
   always @(negedge up_rstn or posedge up_clk) begin
     if (up_rstn == 0) begin
-      up_rst_cnt <= 4'h8;
+      up_rst_cnt <= 4'h0;
       up_status_int <= 1'b0;
     end else begin
       if (up_resetn == 1'b0) begin
