@@ -253,10 +253,51 @@ proc ad_cpu_interconnect {m_base m_port {avl_bridge ""} {avl_bridge_base 0x00000
   }
  }
 
+## Connect the memory mapped interface of an ADI DMAC to the hps.f2sdram0 interface
+#  Use an altera_axi_bridge to isolate the bridging logic, which will be generated
+#  either way due to the interface attribute differences.
+#  This will optimize the interconnects in QSYS design, resulting a smaller and
+#  faster logic.
+#
+# \param[m_port] - the interface name which will be connected to the HPS
+#
 proc ad_dma_interconnect {m_port} {
 
-  add_connection ${m_port} sys_hps.f2sdram0_data
-  set_connection_parameter_value ${m_port}/sys_hps.f2sdram0_data baseAddress {0x0}
+  # define the axi_bridge name from the source IP name
+  set axi_bridge ""
+  append axi_bridge [lindex [split $m_port "."] 0] "_bridge"
+  set if_name [lindex [split $m_port "."] 1]
+
+  ## Instantiate the bridge and connect the interfaces
+  add_instance ${axi_bridge} altera_axi_bridge
+  set_instance_parameter_value ${axi_bridge} {SYNC_RESET} {1}
+  set_instance_parameter_value ${axi_bridge} {AXI_VERSION} {AXI4}
+  set_instance_parameter_value ${axi_bridge} {DATA_WIDTH} {128}
+  set_instance_parameter_value ${axi_bridge} {ADDR_WIDTH} {32}
+  ## Naively assuming that this will be used with ADI's DMA only, look for 'src'
+  ## or 'dst' in the name of the bridge to identify the direction of the interface
+  if {[string equal ${if_name} "m_src_axi"]} {
+    set_instance_parameter_value ${axi_bridge} {WRITE_ACCEPTANCE_CAPABILITY} {16}
+    set_instance_parameter_value ${axi_bridge} {READ_ACCEPTANCE_CAPABILITY} {1}
+    set_instance_parameter_value ${axi_bridge} {COMBINED_ACCEPTANCE_CAPABILITY} {16}
+  } elseif {[string equal ${if_name} "m_dest_axi"]} {
+    set_instance_parameter_value ${axi_bridge} {WRITE_ACCEPTANCE_CAPABILITY} {1}
+    set_instance_parameter_value ${axi_bridge} {READ_ACCEPTANCE_CAPABILITY} {16}
+    set_instance_parameter_value ${axi_bridge} {COMBINED_ACCEPTANCE_CAPABILITY} {16}
+  } else {
+    send_message error "Something went terribly wrong. Maybe you're not using an ADI DMA with the ad_dma_interconnect process?"
+  }
+  set_instance_parameter_value ${axi_bridge} {S0_ID_WIDTH} {2}
+  set_instance_parameter_value ${axi_bridge} {M0_ID_WIDTH} {2}
+  set_instance_parameter_value ${axi_bridge} {WRITE_ISSUING_CAPABILITY} {16}
+  set_instance_parameter_value ${axi_bridge} {READ_ISSUING_CAPABILITY} {16}
+  set_instance_parameter_value ${axi_bridge} {COMBINED_ISSUING_CAPABILITY} {16}
+
+  add_connection sys_clk.out_clk ${axi_bridge}.clk
+  add_connection sys_resetn.out_reset ${axi_bridge}.clk_reset
+  add_connection ${m_port} ${axi_bridge}.s0
+  add_connection ${axi_bridge}.m0 sys_hps.f2sdram0_data
+  set_connection_parameter_value ${axi_bridge}.m0/sys_hps.f2sdram0_data baseAddress {0x0}
 }
 
 # gpio-bd
