@@ -330,11 +330,11 @@ module ad_ip_jesd204_tpl_adc_regmap #(
     .up_rstn (up_rstn),
 
     .up_wreq (up_wreq_s),
-    .up_waddr (up_waddr_s),
+    .up_waddr ({1'b0,up_waddr_s}),
     .up_wdata (up_wdata_s),
     .up_wack (up_wack_s[NUM_CHANNELS+1]),
     .up_rreq (up_rreq_s),
-    .up_raddr (up_raddr_s),
+    .up_raddr ({1'b0,up_raddr_s}),
     .up_rdata (up_rdata_s[NUM_CHANNELS+1]),
     .up_rack (up_rack_s[NUM_CHANNELS+1])
   );
