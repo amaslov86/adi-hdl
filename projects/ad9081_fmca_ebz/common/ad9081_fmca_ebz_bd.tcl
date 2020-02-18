@@ -86,12 +86,12 @@ ad_ip_parameter axi_mxfe_tx_xcvr CONFIG.QPLL_ENABLE 1
 ad_ip_parameter axi_mxfe_tx_xcvr CONFIG.SYS_CLK_SEL 0x3 ; # QPLL0
 
 } else {
-for {set i 0} {$i < $L} {incr i} {
+for {set i 0} {$i < $RX_NUM_OF_LANES} {incr i} {
 create_bd_port -dir I rx_data_${i}_n
 create_bd_port -dir I rx_data_${i}_p
 }
 
-for {set i 0} {$i < $L} {incr i} {
+for {set i 0} {$i < $TX_NUM_OF_LANES} {incr i} {
 create_bd_port -dir O tx_data_${i}_n
 create_bd_port -dir O tx_data_${i}_p
 }
@@ -123,7 +123,7 @@ ad_ip_instance jesd204_phy jesd204_phy_121 [list \
   C_LANES {4} \
   GT_Line_Rate $tx_rate \
   GT_REFCLK_FREQ $ref_clk_rate \
-  DRPCLK_FREQ {100} \
+  DRPCLK_FREQ {50} \
   C_PLL_SELECTION {1} \
   RX_GT_Line_Rate $rx_rate \
   RX_GT_REFCLK_FREQ $ref_clk_rate \
@@ -143,7 +143,7 @@ ad_ip_instance jesd204_phy jesd204_phy_126 [list \
   C_LANES {4} \
   GT_Line_Rate $tx_rate \
   GT_REFCLK_FREQ $ref_clk_rate \
-  DRPCLK_FREQ {100} \
+  DRPCLK_FREQ {50} \
   C_PLL_SELECTION {1} \
   RX_GT_Line_Rate $rx_rate \
   RX_GT_REFCLK_FREQ $ref_clk_rate \
@@ -269,8 +269,6 @@ ad_connect  ref_clk_q1 jesd204_phy_126/cpll_refclk
 ad_connect  ref_clk_q1 jesd204_phy_126/qpll0_refclk
 ad_connect  ref_clk_q1 jesd204_phy_126/qpll1_refclk
 }
-ad_connect  $sys_cpu_clk jesd204_phy_121/drpclk
-if {$L > 4} {ad_connect  $sys_cpu_clk jesd204_phy_126/drpclk}
 
 # device clock domain
 ad_connect  tx_device_clk jesd204_phy_121/tx_core_clk
@@ -307,18 +305,17 @@ ad_connect  $sys_dma_resetn axi_mxfe_tx_dma/m_src_axi_aresetn
 ad_connect  $sys_dma_reset  mxfe_dac_fifo/dma_rst
 
 if {$ADI_PHY_SEL == 0} {
-ad_connect  jesd204_phy_121/tx_sys_reset GND
-if {$L > 4} {ad_connect  jesd204_phy_126/tx_sys_reset GND}
+ad_connect  $sys_cpu_reset jesd204_phy_121/tx_sys_reset
+if {$L > 4} {ad_connect $sys_cpu_reset jesd204_phy_126/tx_sys_reset}
 
-ad_connect  jesd204_phy_121/rx_sys_reset GND
-if {$L > 4} {ad_connect  jesd204_phy_126/rx_sys_reset GND}
+ad_connect  $sys_cpu_reset jesd204_phy_121/rx_sys_reset 
+if {$L > 4} {ad_connect $sys_cpu_reset jesd204_phy_126/rx_sys_reset} 
 
-
-ad_connect  axi_mxfe_tx_jesd/tx_axi/core_reset jesd204_phy_121/tx_reset_gt
-ad_connect  axi_mxfe_rx_jesd/rx_axi/core_reset jesd204_phy_121/rx_reset_gt
+ad_connect  jesd204_phy_121/tx_reset_gt GND
+ad_connect  jesd204_phy_121/rx_reset_gt GND
 if {$L > 4} {
-ad_connect  axi_mxfe_tx_jesd/tx_axi/core_reset jesd204_phy_126/tx_reset_gt
-ad_connect  axi_mxfe_rx_jesd/rx_axi/core_reset jesd204_phy_126/rx_reset_gt
+ad_connect  jesd204_phy_126/tx_reset_gt GND
+ad_connect  jesd204_phy_126/rx_reset_gt GND
 }
 }
 #

@@ -1,8 +1,8 @@
 
 ## ADC FIFO depth in samples per converter
-set adc_fifo_samples_per_converter [expr 64*1024]
+set adc_fifo_samples_per_converter [expr 8*1024]
 ## DAC FIFO depth in samples per converter
-set dac_fifo_samples_per_converter [expr 64*1024]
+set dac_fifo_samples_per_converter [expr 8*1024]
 
 
 source $ad_hdl_dir/projects/common/vcu118/vcu118_system_bd.tcl
@@ -54,5 +54,11 @@ ad_ip_parameter util_mxfe_xcvr CONFIG.QPLL_CFG4 0x2
 ad_ip_parameter util_mxfe_xcvr CONFIG.QPLL_FBDIV 20
 ad_ip_parameter util_mxfe_xcvr CONFIG.PPF0_CFG 0xB00
 ad_ip_parameter util_mxfe_xcvr CONFIG.QPLL_LPF 0x2ff
+} else {
+  set_property -dict [list CONFIG.ADDN_UI_CLKOUT4_FREQ_HZ {50}] [get_bd_cells axi_ddr_cntrl]
+  ad_connect  /axi_ddr_cntrl/addn_ui_clkout4 jesd204_phy_121/drpclk
+  if {$ad_project_params(TX_JESD_L) > 4}  {
+    ad_connect  /axi_ddr_cntrl/addn_ui_clkout4 jesd204_phy_126/drpclk  
+  }
 }
 
