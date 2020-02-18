@@ -197,7 +197,7 @@ localparam REAL_NUM_OF_CHANNELS = NUM_OF_CHANNELS > 32 ? 64 :
 /* FIXME: Find out how to do this in the IP-XACT */
 
 wire [REAL_NUM_OF_CHANNELS-1:0] enable;
-wire [31:0] enable_s;
+wire [63:0] enable_s;
 wire [CHANNEL_DATA_WIDTH*REAL_NUM_OF_CHANNELS-1:0] fifo_wr_data;
 wire [CHANNEL_DATA_WIDTH*64-1:0] fifo_wr_data_s;
 
