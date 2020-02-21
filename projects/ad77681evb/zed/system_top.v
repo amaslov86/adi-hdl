@@ -119,7 +119,7 @@ module system_top (
     .clk_in_p (ad7768_0_mclk),
     .clk_in_n (1'd0),
     .clk(ad7768_mclk_s));
-  
+
   assign ad7768_mclk_return = ad7768_mclk_s;
 
   ad_iobuf #(
@@ -133,7 +133,7 @@ module system_top (
             ad7768_sync_out,
             ad7768_reset}));
 
-  assign gpio_i[63:39] = gpio_o[63:39];
+  assign gpio_i[39] = ad7768_drdy;
 
   ad_iobuf #(
     .DATA_WIDTH(32)
@@ -143,7 +143,7 @@ module system_top (
     .dio_o(gpio_i[31:0]),
     .dio_p(gpio_bd));
 
-  assign gpio_i[63:39] = gpio_o[63:39];
+  assign gpio_i[63:40] = gpio_o[63:40];
 
   ad_iobuf #(
     .DATA_WIDTH(2)
