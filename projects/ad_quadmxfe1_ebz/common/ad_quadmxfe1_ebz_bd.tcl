@@ -327,12 +327,12 @@ ad_connect  rx_device_clk mxfe_adc_fifo/adc_clk
 ad_connect  tx_device_clk tx_mxfe_tpl_core/link_clk
 ad_connect  tx_device_clk util_mxfe_upack/clk
 ad_connect  tx_device_clk mxfe_dac_fifo/dac_clk
+ad_connect  tx_device_clk mxfe_dac_fifo/dma_clk
+ad_connect  tx_device_clk axi_mxfe_tx_dma/m_axis_aclk
 
 # dma clock domain
 ad_connect  $sys_cpu_clk mxfe_adc_fifo/dma_clk
-ad_connect  $sys_dma_clk mxfe_dac_fifo/dma_clk
 ad_connect  $sys_cpu_clk axi_mxfe_rx_dma/s_axis_aclk
-ad_connect  $sys_dma_clk axi_mxfe_tx_dma/m_axis_aclk
 
 # connect resets
 ad_connect  rx_device_clk_rstgen/peripheral_reset mxfe_adc_fifo/adc_rst
@@ -340,8 +340,8 @@ ad_connect  tx_device_clk_rstgen/peripheral_reset mxfe_dac_fifo/dac_rst
 #ad_connect  rx_device_clk_rstgen/peripheral_reset util_mxfe_cpack/reset
 ad_connect  tx_device_clk_rstgen/peripheral_reset util_mxfe_upack/reset
 ad_connect  $sys_cpu_resetn axi_mxfe_rx_dma/m_dest_axi_aresetn
-ad_connect  $sys_dma_resetn axi_mxfe_tx_dma/m_src_axi_aresetn
-ad_connect  $sys_dma_reset mxfe_dac_fifo/dma_rst
+ad_connect  tx_device_clk_rstgen/peripheral_aresetn axi_mxfe_tx_dma/m_src_axi_aresetn
+ad_connect  tx_device_clk_rstgen/peripheral_reset mxfe_dac_fifo/dma_rst
 
 if {$ADI_PHY_SEL == 0} {
 ad_connect  tx_device_clk_rstgen/peripheral_reset jesd204_phy_121_122/tx_sys_reset
