@@ -369,7 +369,14 @@ proc jesd204_compose {} {
 
     add_instance link_pll_reset_control altera_xcvr_reset_control $version
     set_instance_parameter_value link_pll_reset_control {SYNCHRONIZE_RESET} {0}
-
+    set_instance_parameter_value link_pll_reset_control {SYS_CLK_IN_MHZ} $sysclk_frequency
+    set_instance_parameter_value link_pll_reset_control {TX_PLL_ENABLE} {1}
+    set_instance_parameter_value link_pll_reset_control {T_PLL_POWERDOWN} {1000}
+    set_instance_parameter_value link_pll_reset_control {TX_ENABLE} {0}
+    set_instance_parameter_value link_pll_reset_control {RX_ENABLE} {0}
+    add_connection sys_clock.clk link_pll_reset_control.clock
+    add_connection link_reset.out_reset link_pll_reset_control.reset
+    add_connection sys_clock.clk_reset link_pll_reset_control.reset
     add_connection link_pll_reset_control.pll_powerdown link_pll.pll_powerdown
 
   } elseif {$device_family == "Stratix 10"} {
@@ -390,8 +397,6 @@ proc jesd204_compose {} {
     set_instance_parameter_value link_pll {set_capability_reg_enable} {1}
 
     set outclk_name "outclk_div1"
-
-    add_instance link_pll_reset_control altera_xcvr_reset_control_s10 $version
 
   } else {
   ## Unsupported device
@@ -439,14 +444,6 @@ proc jesd204_compose {} {
   set_interface_property link_pll_reconfig associatedClock sys_clk
   set_interface_property link_pll_reconfig associatedReset sys_resetn
 
-  set_instance_parameter_value link_pll_reset_control {SYS_CLK_IN_MHZ} $sysclk_frequency
-  set_instance_parameter_value link_pll_reset_control {TX_PLL_ENABLE} {1}
-  set_instance_parameter_value link_pll_reset_control {T_PLL_POWERDOWN} {1000}
-  set_instance_parameter_value link_pll_reset_control {TX_ENABLE} {0}
-  set_instance_parameter_value link_pll_reset_control {RX_ENABLE} {0}
-  add_connection sys_clock.clk link_pll_reset_control.clock
-  add_connection link_reset.out_reset link_pll_reset_control.reset
-  add_connection sys_clock.clk_reset link_pll_reset_control.reset
 
   create_phy_reset_control $tx_or_rx_n $num_of_lanes $sysclk_frequency
 
