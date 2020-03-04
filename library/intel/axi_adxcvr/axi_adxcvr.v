@@ -54,6 +54,7 @@ module axi_adxcvr #(
   output                        up_rst,
   input                         up_pll_locked,
   input   [(NUM_OF_LANES-1):0]  up_ready,
+  output                        up_cal_busy_out_en,
 
   input                         s_axi_aclk,
   input                         s_axi_aresetn,
@@ -111,6 +112,7 @@ module axi_adxcvr #(
     .up_rst (up_rst),
     .up_pll_locked (up_pll_locked),
     .up_ready (up_ready),
+    .up_cal_busy_out_en (up_cal_busy_out_en),
     .up_rstn (up_rstn),
     .up_clk (up_clk),
     .up_wreq (up_wreq),

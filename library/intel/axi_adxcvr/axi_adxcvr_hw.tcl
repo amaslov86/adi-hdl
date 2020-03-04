@@ -59,6 +59,9 @@ set_interface_property if_up_rst associatedResetSinks s_axi_reset
 add_interface core_pll_locked conduit end
 add_interface_port core_pll_locked up_pll_locked pll_locked Input 1
 
+add_interface cal_busy_out_en conduit end
+add_interface_port cal_busy_out_en up_cal_busy_out_en cal_busy_en Output 1
+
 # name changes
 
 proc p_axi_adxcvr {} {

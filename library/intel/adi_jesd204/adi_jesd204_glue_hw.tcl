@@ -48,7 +48,7 @@ source ../../scripts/adi_ip_intel.tcl
 
 
 ad_ip_create adi_jesd204_glue {Glue} jesd204_phy_glue_elab
-set_module_property INTERNAL true
+set_module_property INTERNAL false
 
 # files
 
@@ -58,18 +58,47 @@ ad_ip_files adi_jesd204_glue [list \
 
 # parameters
 
-ad_ip_parameter IN_PLL_POWERDOWN_EN BOOLEAN 1 false
+ad_ip_parameter TX_OR_RX_N BOOLEAN 0 false
+ad_ip_parameter NUM_OF_LANES INTEGER 4 true
+
+# Activate these in case of Arria 10 with more than 6 lanes
+ad_ip_parameter PLL_POWERDOWN_EN BOOLEAN 0 false
+ad_ip_parameter MCGB_RESET_EN BOOLEAN 0 false
+# Activate in case of Stratix 10 when TX is used
+ad_ip_parameter PLL_SELECT_EN BOOLEAN 0 false
 
 proc jesd204_phy_glue_elab {} {
+
+  if {[get_parameter TX_OR_RX_N]} {
+    set phy_type "tx"
+  } else {
+    set phy_type "rx"
+  }
+  set num_of_lanes [get_parameter NUM_OF_LANES]
+
   add_interface in_pll_powerdown conduit end
   add_interface_port in_pll_powerdown in_pll_powerdown pll_powerdown Input 1
-  set_interface_property in_pll_powerdown ENABLED [get_parameter IN_PLL_POWERDOWN_EN]
+  set_interface_property in_pll_powerdown ENABLED [get_parameter PLL_POWERDOWN_EN]
 
   add_interface out_pll_powerdown conduit end
   add_interface_port out_pll_powerdown out_pll_powerdown pll_powerdown Output 1
+  set_interface_property out_pll_powerdown ENABLED [get_parameter PLL_POWERDOWN_EN]
+
   add_interface out_mcgb_rst conduit end
   add_interface_port out_mcgb_rst out_mcgb_rst mcgb_rst Output 1
+  set_interface_property out_mcgb_rst ENABLED [get_parameter MCGB_RESET_EN]
 
   add_interface out_pll_select_gnd conduit end
   add_interface_port out_pll_select_gnd out_pll_select_gnd pll_select Output 1
+  set_interface_property out_pll_select_gnd ENABLED [get_parameter PLL_SELECT_EN]
+
+  add_interface in_cal_busy conduit end
+  add_interface_port in_cal_busy in_cal_busy "${phy_type}_cal_busy" Input $num_of_lanes
+
+  add_interface in_cal_busy_en conduit end
+  add_interface_port in_cal_busy_en in_cal_busy_en cal_busy_en Input 1
+
+  add_interface out_cal_busy conduit end
+  add_interface_port out_cal_busy out_cal_busy "${phy_type}_cal_busy" Output $num_of_lanes
+
 }

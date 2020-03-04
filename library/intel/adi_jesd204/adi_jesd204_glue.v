@@ -35,15 +35,22 @@
 
 `timescale 1ns/100ps
 
-module adi_jesd204_glue (
+module adi_jesd204_glue #(
+
+  parameter NUM_OF_LANES = 4) (
+
   input in_pll_powerdown,
+  input [NUM_OF_LANES-1:0] in_cal_busy,
+  input in_cal_busy_en,
   output out_pll_powerdown,
   output out_mcgb_rst,
-  output out_pll_select_gnd
+  output out_pll_select_gnd,
+  output [NUM_OF_LANES-1:0] out_cal_busy
 );
 
 assign out_pll_powerdown = in_pll_powerdown;
 assign out_mcgb_rst = in_pll_powerdown;
 assign out_pll_select_gnd = 1'b0;
+assign out_cal_busy = (in_cal_busy_en) ? in_cal_busy : {NUM_OF_LANES{1'b0}};
 
 endmodule

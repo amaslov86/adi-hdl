@@ -54,6 +54,7 @@ module axi_adxcvr_up #(
   output                        up_rst,
   input                         up_pll_locked,
   input   [(NUM_OF_LANES-1):0]  up_ready,
+  output  reg                   up_cal_busy_out_en,
 
   // bus interface
 
@@ -112,6 +113,23 @@ module axi_adxcvr_up #(
     end else begin
       if ((up_wreq == 1'b1) && (up_waddr == 10'h004)) begin
         up_resetn <= up_wdata[0];
+      end
+    end
+  end
+
+  // PHY calibration status line enable bit
+  // NOTE: If the system has a free running reference clock for the PHY, the
+  // reset value of this line should be 1'b1. We are setting to 1'b0 because
+  // in general the clock chip is sitting in an FMC board, meaning there will
+  // be no valid reference clock for the PHY at power up. (We must
+  // re-calibrate the PHY after power-up)
+
+  always @(negedge up_rstn or posedge up_clk) begin
+    if (up_rstn == 0) begin
+      up_cal_busy_out_en <= 'd0;
+    end else begin
+      if ((up_wreq == 1'b1) && (up_waddr == 10'h00A)) begin
+        up_cal_busy_out_en <= up_wdata[0];
       end
     end
   end
@@ -176,6 +194,7 @@ module axi_adxcvr_up #(
           10'h006: up_rdata_d <= up_status_32_s;
           10'h007: up_rdata_d <= {FPGA_TECHNOLOGY,FPGA_FAMILY,SPEED_GRADE,DEV_PACKAGE}; // [8,8,8,8]
           10'h009: up_rdata_d <= up_rparam_s;
+          10'h00A: up_rdata_d <= up_cal_busy_out_en;
           10'h050: up_rdata_d <= {16'd0, FPGA_VOLTAGE};  // mV
           default: up_rdata_d <= 32'd0;
         endcase
