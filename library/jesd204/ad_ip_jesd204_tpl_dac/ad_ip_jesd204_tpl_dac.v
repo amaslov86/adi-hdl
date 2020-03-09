@@ -39,7 +39,8 @@ module ad_ip_jesd204_tpl_dac #(
   parameter DDS_CORDIC_DW = 16,
   parameter DDS_CORDIC_PHASE_DW = 16,
   parameter DATAPATH_DISABLE = 0,
-  parameter IQCORRECTION_DISABLE = 1
+  parameter IQCORRECTION_DISABLE = 1,
+  parameter XBAR_DISABLE = 1
 ) (
   // jesd interface
   // link_clk is (line-rate/40)
@@ -115,6 +116,7 @@ module ad_ip_jesd204_tpl_dac #(
   wire [NUM_CHANNELS-1:0]  dac_iqcor_enb;
   wire [NUM_CHANNELS*16-1:0] dac_iqcor_coeff_1;
   wire [NUM_CHANNELS*16-1:0] dac_iqcor_coeff_2;
+  wire [NUM_CHANNELS*8-1:0] dac_src_chan_sel;
 
   // regmap
 
@@ -122,6 +124,7 @@ module ad_ip_jesd204_tpl_dac #(
     .ID (ID),
     .DATAPATH_DISABLE (DATAPATH_DISABLE),
     .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .XBAR_DISABLE (XBAR_DISABLE),
     .FPGA_TECHNOLOGY (FPGA_TECHNOLOGY),
     .FPGA_FAMILY (FPGA_FAMILY),
     .SPEED_GRADE (SPEED_GRADE),
@@ -176,6 +179,8 @@ module ad_ip_jesd204_tpl_dac #(
     .dac_iqcor_coeff_1 (dac_iqcor_coeff_1),
     .dac_iqcor_coeff_2 (dac_iqcor_coeff_2),
 
+    .dac_src_chan_sel (dac_src_chan_sel),
+
     .jesd_m (NUM_CHANNELS),
     .jesd_l (NUM_LANES),
     .jesd_s (SAMPLES_PER_FRAME),
@@ -190,6 +195,7 @@ module ad_ip_jesd204_tpl_dac #(
   ad_ip_jesd204_tpl_dac_core #(
     .DATAPATH_DISABLE (DATAPATH_DISABLE),
     .IQCORRECTION_DISABLE (IQCORRECTION_DISABLE),
+    .XBAR_DISABLE (XBAR_DISABLE),
     .NUM_LANES (NUM_LANES),
     .NUM_CHANNELS (NUM_CHANNELS),
     .BITS_PER_SAMPLE (BITS_PER_SAMPLE),
@@ -232,7 +238,9 @@ module ad_ip_jesd204_tpl_dac #(
 
     .dac_iqcor_enb (dac_iqcor_enb),
     .dac_iqcor_coeff_1 (dac_iqcor_coeff_1),
-    .dac_iqcor_coeff_2 (dac_iqcor_coeff_2)
+    .dac_iqcor_coeff_2 (dac_iqcor_coeff_2),
+
+    .dac_src_chan_sel (dac_src_chan_sel)
 
   );
 
