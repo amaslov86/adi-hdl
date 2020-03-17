@@ -56,8 +56,6 @@ module jesd204_rx_frame_mark #(
   input                             reset,
   input [7:0]                       cfg_beats_per_multiframe,
   input [7:0]                       cfg_octets_per_frame,
-  input [DATA_PATH_WIDTH-1:0]       charisk28,
-  input [DATA_PATH_WIDTH*8-1:0]     data,
 
   output reg [DATA_PATH_WIDTH-1:0]  sof,
   output reg [DATA_PATH_WIDTH-1:0]  eof,

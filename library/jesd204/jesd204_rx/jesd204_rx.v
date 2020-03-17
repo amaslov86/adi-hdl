@@ -255,21 +255,17 @@ jesd204_lmfc i_lmfc (
   .sysref_alignment_error(event_sysref_alignment_error)
 );
 
-jesd204_eof_generator  #(
-  .DATA_PATH_WIDTH(DATA_PATH_WIDTH),
-  .MAX_OCTETS_PER_FRAME(MAX_OCTETS_PER_FRAME)
-) i_eof_gen (
-  .clk(clk),
-  .reset(eof_reset),
-
-  .lmfc_edge(lmfc_edge),
-
-  .cfg_octets_per_frame(cfg_octets_per_frame),
-  .cfg_generate_eomf(1'b0),
-
-  .sof(rx_sof),
-  .eof(rx_eof),
-  .eomf()
+jesd204_rx_frame_mark #(
+  .DATA_PATH_WIDTH          (DATA_PATH_WIDTH)
+) i_frame_mark (
+  .clk                      (clk),
+  .reset                    (eof_reset),
+  .cfg_beats_per_multiframe (cfg_beats_per_multiframe),
+  .cfg_octets_per_frame     (cfg_octets_per_frame),
+  .sof                      (rx_sof),
+  .eof                      (rx_eof),
+  .somf                     (),
+  .eomf                     ()
 );
 
 generate

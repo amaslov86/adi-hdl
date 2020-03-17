@@ -99,8 +99,6 @@ jesd204_rx_frame_mark #(
   .reset                    (reset),
   .cfg_beats_per_multiframe (cfg_beats_per_multiframe),
   .cfg_octets_per_frame     (cfg_octets_per_frame),
-  .charisk28                (charisk28),
-  .data                     (data),
   .sof                      (),
   .eof                      (eof),
   .somf                     (),
