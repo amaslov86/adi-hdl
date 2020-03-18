@@ -89,13 +89,6 @@ proc ad_data_offload_create {instance_name datapath_type mem_type mem_size sourc
         AXI_ADDRESS_LIMIT 0xffffffff \
       ]
 
-      ## NOTE: TODO this instance is carrier specific, find a way to be more generic
-      ad_ip_instance proc_sys_reset axi_rstgen
-      ad_ip_instance mig_7series axi_ddr_cntrl
-      file copy -force $ad_hdl_dir/projects/common/zc706/zc706_plddr3_mig.prj [get_property IP_DIR \
-        [get_ips [get_property CONFIG.Component_Name [get_bd_cells axi_ddr_cntrl]]]]
-      ad_ip_parameter axi_ddr_cntrl CONFIG.XML_INPUT_FILE zc706_plddr3_mig.prj
-
       ad_connect fifo2axi_bridge/fifo_src_clk i_data_offload/s_axis_aclk
       ad_connect fifo2axi_bridge/fifo_src_resetn i_data_offload/fifo_src_resetn
       ad_connect fifo2axi_bridge/fifo_src_wen i_data_offload/fifo_src_wen
@@ -109,14 +102,6 @@ proc ad_data_offload_create {instance_name datapath_type mem_type mem_size sourc
       ad_connect fifo2axi_bridge/fifo_dst_raddr i_data_offload/fifo_dst_raddr
       ad_connect fifo2axi_bridge/fifo_dst_rdata i_data_offload/fifo_dst_rdata
       ad_connect fifo2axi_bridge/fifo_dst_rlast i_data_offload/fifo_dst_rlast
-
-      ad_connect axi_ddr_cntrl/ui_clk axi_rstgen/slowest_sync_clk
-      ad_connect axi_ddr_cntrl/ui_clk fifo2axi_bridge/axi_clk
-      ad_connect axi_ddr_cntrl/S_AXI fifo2axi_bridge/ddr_axi
-      ad_connect axi_rstgen/peripheral_aresetn fifo2axi_bridge/axi_resetn
-      ad_connect axi_rstgen/peripheral_aresetn axi_ddr_cntrl/aresetn
-
-      assign_bd_address [get_bd_addr_segs -of_objects [get_bd_cells axi_ddr_cntrl]]
 
     }
 
@@ -141,20 +126,6 @@ proc ad_data_offload_create {instance_name datapath_type mem_type mem_size sourc
 
   current_bd_instance /
 
-  if {$mem_type == 1} {
-
-    # PL-DDR data offload interfaces
-    create_bd_port -dir I -type rst sys_rst
-    create_bd_intf_port -mode Master -vlnv xilinx.com:interface:ddrx_rtl:1.0 ddr3
-    create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:diff_clock_rtl:1.0 sys_clk
-
-    ad_connect  sys_rst $instance_name/axi_ddr_cntrl/sys_rst
-    ad_connect  sys_clk $instance_name/axi_ddr_cntrl/SYS_CLK
-    ad_connect  ddr3 $instance_name/axi_ddr_cntrl/DDR3
-    ## TODO: $sys_cpu_resetn does not work in this context
-    ad_connect  sys_rstgen/peripheral_aresetn $instance_name/axi_rstgen/ext_reset_in
-
-  }
 }
 
 proc log2 {x} {
