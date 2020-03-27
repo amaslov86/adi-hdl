@@ -1,4 +1,5 @@
 # de10nano carrier qsys
+#
 # system clock
 
 add_instance sys_clk clock_source
@@ -38,10 +39,10 @@ set_instance_parameter_value sys_hps {UART1_Mode} {N/A}
 set_instance_parameter_value sys_hps {I2C0_PinMuxing} {FPGA}
 set_instance_parameter_value sys_hps {I2C0_Mode} {Full}
 set_instance_parameter_value sys_hps {desired_cfg_clk_mhz} {80.0}
-set_instance_parameter_value sys_hps {S2FCLK_USER0CLK_Enable} {1}
-set_instance_parameter_value sys_hps {S2FCLK_USER1CLK_Enable} {0}
-set_instance_parameter_value sys_hps {S2FCLK_USER1CLK_FREQ} {100.0}
-set_instance_parameter_value sys_hps {S2FCLK_USER2CLK_FREQ} {100.0}
+set_instance_parameter_value sys_hps {S2FCLK_USER0CLK_Enable} {0}
+set_instance_parameter_value sys_hps {S2FCLK_USER1CLK_Enable} {1}
+set_instance_parameter_value sys_hps {S2FCLK_USER0CLK_FREQ} {0}
+set_instance_parameter_value sys_hps {S2FCLK_USER1CLK_FREQ} {40.0}
 set_instance_parameter_value sys_hps {HPS_PROTOCOL} {DDR3}
 set_instance_parameter_value sys_hps {MEM_CLK_FREQ} {400.0}
 set_instance_parameter_value sys_hps {REF_CLK_FREQ} {25.0}
@@ -98,12 +99,13 @@ add_connection sys_clk.clk sys_hps.f2h_sdram0_clock
 add_connection sys_clk.clk sys_hps.h2f_axi_clock
 add_connection sys_clk.clk sys_hps.f2h_axi_clock
 add_connection sys_clk.clk sys_hps.h2f_lw_axi_clock
-add_interface sys_hps_i2c0 conduit end
-set_interface_property sys_hps_i2c0 EXPORT_OF sys_hps.i2c0
-add_interface sys_hps_i2c0_clk clock source
-set_interface_property sys_hps_i2c0_clk EXPORT_OF sys_hps.i2c0_clk
-add_interface sys_hps_i2c0_scl_in clock sink
-set_interface_property sys_hps_i2c0_scl_in EXPORT_OF sys_hps.i2c0_scl_in
+
+add_interface sys_hps_i2c_0 conduit end
+set_interface_property sys_hps_i2c_0 EXPORT_OF sys_hps.i2c0
+add_interface sys_hps_i2c_0_scl_out clock source
+set_interface_property sys_hps_i2c_0_scl_out EXPORT_OF sys_hps.i2c0_clk
+add_interface sys_hps_i2c_0_scl_in clock sink
+set_interface_property sys_hps_i2c_0_scl_in EXPORT_OF sys_hps.i2c0_scl_in
 
 # cpu/hps handling
 
@@ -134,8 +136,9 @@ proc ad_dma_interconnect {m_port m_id} {
 # common dma interfaces
 
 add_instance sys_dma_clk clock_source
-add_connection sys_clk.clk sys_dma_clk.clk_in
+set_instance_parameter_value sys_dma_clk {clockFrequency} {40000000.0}
 add_connection sys_clk.clk_reset sys_dma_clk.clk_in_reset
+add_connection sys_hps.h2f_user1_clock sys_dma_clk.clk_in
 add_connection sys_dma_clk.clk sys_hps.f2h_sdram1_clock
 add_connection sys_dma_clk.clk sys_hps.f2h_sdram2_clock
 
@@ -209,7 +212,7 @@ set_interface_property sys_spi EXPORT_OF sys_spi.external
 
 ad_cpu_interrupt 0 sys_gpio_bd.irq
 ad_cpu_interrupt 1 sys_spi.irq
-ad_cpu_interrupt 2 sys_gpio_in.irq 
+ad_cpu_interrupt 2 sys_gpio_in.irq
 
 # cpu interconnects
 
