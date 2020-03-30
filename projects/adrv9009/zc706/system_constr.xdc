@@ -11,16 +11,16 @@ set_property  -dict {PACKAGE_PIN  AG8 } [get_ports rx_data_p[1]]                
 set_property  -dict {PACKAGE_PIN  AG7 } [get_ports rx_data_n[1]]                                      ; ## A07  FMC_HPC_DP2_M2C_N
 set_property  -dict {PACKAGE_PIN  AH10} [get_ports rx_data_p[2]]                                      ; ## C06  FMC_HPC_DP0_M2C_P
 set_property  -dict {PACKAGE_PIN  AH9 } [get_ports rx_data_n[2]]                                      ; ## C07  FMC_HPC_DP0_M2C_N
-set_property  -dict {PACKAGE_PIN  AE8 } [get_ports rx_data_p[3]]                                      ; ## A10  FMC_HPC_DP3_M2C_P
-set_property  -dict {PACKAGE_PIN  AE7 } [get_ports rx_data_n[3]]                                      ; ## A11  FMC_HPC_DP3_M2C_N
+#set_property  -dict {PACKAGE_PIN  AE8 } [get_ports rx_data_p[3]]                                      ; ## A10  FMC_HPC_DP3_M2C_P
+#set_property  -dict {PACKAGE_PIN  AE7 } [get_ports rx_data_n[3]]                                      ; ## A11  FMC_HPC_DP3_M2C_N
 set_property  -dict {PACKAGE_PIN  AK6 } [get_ports tx_data_p[0]]                                      ; ## A22  FMC_HPC_DP1_C2M_P (tx_data_p[0])
 set_property  -dict {PACKAGE_PIN  AK5 } [get_ports tx_data_n[0]]                                      ; ## A23  FMC_HPC_DP1_C2M_N (tx_data_n[0])
-set_property  -dict {PACKAGE_PIN  AJ4 } [get_ports tx_data_p[1]]                                      ; ## A26  FMC_HPC_DP2_C2M_P (tx_data_p[3])
-set_property  -dict {PACKAGE_PIN  AJ3 } [get_ports tx_data_n[1]]                                      ; ## A27  FMC_HPC_DP2_C2M_N (tx_data_n[3])
-set_property  -dict {PACKAGE_PIN  AK10} [get_ports tx_data_p[2]]                                      ; ## C02  FMC_HPC_DP0_C2M_P (tx_data_p[2])
-set_property  -dict {PACKAGE_PIN  AK9 } [get_ports tx_data_n[2]]                                      ; ## C03  FMC_HPC_DP0_C2M_N (tx_data_n[2])
-set_property  -dict {PACKAGE_PIN  AK2 } [get_ports tx_data_p[3]]                                      ; ## A30  FMC_HPC_DP3_C2M_P (tx_data_p[1])
-set_property  -dict {PACKAGE_PIN  AK1 } [get_ports tx_data_n[3]]                                      ; ## A31  FMC_HPC_DP3_C2M_N (tx_data_n[1])
+#set_property  -dict {PACKAGE_PIN  AJ4 } [get_ports tx_data_p[1]]                                      ; ## A26  FMC_HPC_DP2_C2M_P (tx_data_p[3])
+#set_property  -dict {PACKAGE_PIN  AJ3 } [get_ports tx_data_n[1]]                                      ; ## A27  FMC_HPC_DP2_C2M_N (tx_data_n[3])
+#set_property  -dict {PACKAGE_PIN  AK10} [get_ports tx_data_p[2]]                                      ; ## C02  FMC_HPC_DP0_C2M_P (tx_data_p[2])
+#set_property  -dict {PACKAGE_PIN  AK9 } [get_ports tx_data_n[2]]                                      ; ## C03  FMC_HPC_DP0_C2M_N (tx_data_n[2])
+#set_property  -dict {PACKAGE_PIN  AK2 } [get_ports tx_data_p[3]]                                      ; ## A30  FMC_HPC_DP3_C2M_P (tx_data_p[1])
+#set_property  -dict {PACKAGE_PIN  AK1 } [get_ports tx_data_n[3]]                                      ; ## A31  FMC_HPC_DP3_C2M_N (tx_data_n[1])
 set_property  -dict {PACKAGE_PIN  AH19  IOSTANDARD LVDS_25} [get_ports rx_sync_p]                     ; ## G09  FMC_HPC_LA03_P
 set_property  -dict {PACKAGE_PIN  AJ19  IOSTANDARD LVDS_25} [get_ports rx_sync_n]                     ; ## G10  FMC_HPC_LA03_N
 set_property  -dict {PACKAGE_PIN  T29   IOSTANDARD LVDS_25} [get_ports rx_os_sync_p]                  ; ## G27  FMC_HPC_LA25_P (Sniffer)
@@ -76,4 +76,4 @@ create_clock -name tx_ref_clk     -period  4.00 [get_ports ref_clk0_p]
 create_clock -name rx_ref_clk     -period  4.00 [get_ports ref_clk1_p]
 create_clock -name tx_div_clk     -period  4.00 [get_pins i_system_wrapper/system_i/util_adrv9009_xcvr/inst/i_xch_0/i_gtxe2_channel/TXOUTCLK]
 create_clock -name rx_div_clk     -period  4.00 [get_pins i_system_wrapper/system_i/util_adrv9009_xcvr/inst/i_xch_0/i_gtxe2_channel/RXOUTCLK]
-create_clock -name rx_os_div_clk  -period  4.00 [get_pins i_system_wrapper/system_i/util_adrv9009_xcvr/inst/i_xch_2/i_gtxe2_channel/RXOUTCLK]
+create_clock -name rx_os_div_clk  -period  4.00 [get_pins i_system_wrapper/system_i/util_adrv9009_xcvr/inst/i_xch_1/i_gtxe2_channel/RXOUTCLK]
