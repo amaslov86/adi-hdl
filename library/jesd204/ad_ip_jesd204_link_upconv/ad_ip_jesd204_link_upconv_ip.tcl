@@ -30,6 +30,9 @@ adi_ip_files ad_ip_jesd204_link_upconv [list \
 
 adi_ip_properties_lite ad_ip_jesd204_link_upconv
 
+ipx::infer_bus_interface in_link_clk xilinx.com:signal:clock_rtl:1.0 [ipx::current_core]
+ipx::infer_bus_interface out_link_clk xilinx.com:signal:clock_rtl:1.0 [ipx::current_core]
+
 adi_add_bus "out_link" "master" \
   "xilinx.com:interface:axis_rtl:1.0" \
   "xilinx.com:interface:axis:1.0" \
