@@ -51,9 +51,8 @@ proc ad_data_offload_create {instance_name datapath_type mem_type mem_size sourc
       ###########################################################################
 
       ## Add the memory module source into the project file set
-      ## NOTE: be aware of relative path
       if {[get_files -quiet "ad_mem_asym.v"] == ""} {
-        add_files -norecurse -fileset sources_1 "../../../library/common/ad_mem_asym.v"
+        add_files -norecurse -fileset sources_1 "$ad_hdl_dir/library/common/ad_mem_asym.v"
       }
 
       create_bd_cell -type module -reference ad_mem_asym storage_unit
@@ -72,6 +71,7 @@ proc ad_data_offload_create {instance_name datapath_type mem_type mem_size sourc
       ad_connect storage_unit/reb i_data_offload/fifo_dst_ren
       ad_connect storage_unit/addrb i_data_offload/fifo_dst_raddr
       ad_connect storage_unit/doutb i_data_offload/fifo_dst_rdata
+      ad_connect i_data_offload/fifo_dst_ready VCC
 
     } elseif {$mem_type == 1} {
       ###########################################################################
@@ -102,6 +102,7 @@ proc ad_data_offload_create {instance_name datapath_type mem_type mem_size sourc
       ad_connect fifo2axi_bridge/fifo_dst_raddr i_data_offload/fifo_dst_raddr
       ad_connect fifo2axi_bridge/fifo_dst_rdata i_data_offload/fifo_dst_rdata
       ad_connect fifo2axi_bridge/fifo_dst_rlast i_data_offload/fifo_dst_rlast
+      ad_connect fifo2axi_bridge/fifo_dst_ready i_data_offload/fifo_dst_ready
 
     }
 
