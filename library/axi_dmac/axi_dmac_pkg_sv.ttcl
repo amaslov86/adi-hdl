@@ -22,8 +22,6 @@
 <: set dma_axi_addr_width      [get_property MODELPARAM_VALUE.DMA_AXI_ADDR_WIDTH] :>
 <: set max_bytes_per_burst     [get_property MODELPARAM_VALUE.MAX_BYTES_PER_BURST] :>
 <: set fifo_size               [get_property MODELPARAM_VALUE.FIFO_SIZE] :>
-<: set axi_id_width_src        [get_property MODELPARAM_VALUE.AXI_ID_WIDTH_SRC] :>
-<: set axi_id_width_dest       [get_property MODELPARAM_VALUE.AXI_ID_WIDTH_DEST] :>
 <: set disable_debug_registers [get_property MODELPARAM_VALUE.DISABLE_DEBUG_REGISTERS] :>
 
 <: proc b2i {b} { if {$b==true} {return 1} else {return 0}} :>
@@ -56,8 +54,8 @@ package <=: ComponentName :>_pkg;
   parameter <=: ComponentName :>_DMA_AXI_ADDR_WIDTH      = <=: $dma_axi_addr_width :>;
   parameter <=: ComponentName :>_MAX_BYTES_PER_BURST     = <=: $max_bytes_per_burst :>;
   parameter <=: ComponentName :>_FIFO_SIZE               = <=: $fifo_size :>;
-  parameter <=: ComponentName :>_AXI_ID_WIDTH_SRC        = <=: $axi_id_width_src :>;
-  parameter <=: ComponentName :>_AXI_ID_WIDTH_DEST       = <=: $axi_id_width_dest :>;
+  parameter <=: ComponentName :>_AXI_ID_WIDTH_SRC        = 8;
+  parameter <=: ComponentName :>_AXI_ID_WIDTH_DEST       = 8;
   parameter <=: ComponentName :>_DISABLE_DEBUG_REGISTERS = <=: b2i $disable_debug_registers :>;
 //////////////////////////////////////////////////////////////////////////
 
