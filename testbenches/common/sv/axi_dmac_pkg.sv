@@ -41,7 +41,6 @@ typedef struct {
   int DMA_DATA_WIDTH_DEST;
   int DMA_LENGTH_WIDTH;
   int DMA_2D_TRANSFER;
-  int DMA_2D_TLAST_MODE;
   int ASYNC_CLK_REQ_SRC;
   int ASYNC_CLK_SRC_DEST;
   int ASYNC_CLK_DEST_REQ;
@@ -59,11 +58,6 @@ typedef struct {
   int AXI_ID_WIDTH_SRC;
   int AXI_ID_WIDTH_DEST;
   int DISABLE_DEBUG_REGISTERS;
-  int ENABLE_DIAGNOSTICS_IF;
-  int ENABLE_FRAME_LOCK;
-  int MAX_NUM_FRAMES;
-  int USE_EXT_SYNC;
-  int HAS_AUTORUN;
 } axi_dmac_params_t;
 
 endpackage

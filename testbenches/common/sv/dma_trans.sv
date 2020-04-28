@@ -211,7 +211,7 @@ class dma_2d_segment extends dma_segment;
       s.dst_addr = dst_addr + i*dst_stride;
       s.length = length;
       if (i != ylength-1)
-        s.last = (p.DMA_2D_TLAST_MODE == 1) & this.last;
+        s.last = 0;
       if (i > 0)
         s.first = 0;
       sa[i] = s;
@@ -319,7 +319,7 @@ class dma_flocked_2d_segment extends dma_2d_segment;
     ds.flock_wait_master = flock_wait_master;
   endfunction
 
-  constraint c_buf_num  {num_of_buffers < p.MAX_NUM_FRAMES;};
+  constraint c_buf_num  {num_of_buffers < 8;};
   constraint c_frm_dist {frame_distance < num_of_buffers;};
 
   virtual function void print();

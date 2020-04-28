@@ -7,7 +7,7 @@
 # Assumes this file is in <HDL>/testbenches/scripts/project-sim.mk 
 ADI_HDL_DIR := $(subst /testbenches/scripts/project-sim.mk,,$(abspath $(lastword $(MAKEFILE_LIST))))
 HDL_LIBRARY_PATH := $(ADI_HDL_DIR)/library/
-include $(ADI_HDL_DIR)/quiet.mk
+#include $(ADI_HDL_DIR)/quiet.mk
 
 ENV_DEPS += $(foreach dep,$(LIB_DEPS),$(HDL_LIBRARY_PATH)$(dep)/component.xml)
 
@@ -118,7 +118,7 @@ clean:
 
 library:
 	@for lib in $(LIB_DEPS); do \
-		$(MAKE) -C $(HDL_LIBRARY_PATH)$${lib} xilinx || exit $$?; \
+		$(MAKE) -C $(HDL_LIBRARY_PATH)$${lib} || exit $$?; \
 	done
 
 # Create here the targets which build the test env

@@ -53,7 +53,6 @@
                             th``_``vip``_0_DMA_DATA_WIDTH_DEST, \
                             th``_``vip``_0_DMA_LENGTH_WIDTH, \
                             th``_``vip``_0_DMA_2D_TRANSFER, \
-                            th``_``vip``_0_DMA_2D_TLAST_MODE, \
                             th``_``vip``_0_ASYNC_CLK_REQ_SRC, \
                             th``_``vip``_0_ASYNC_CLK_SRC_DEST, \
                             th``_``vip``_0_ASYNC_CLK_DEST_REQ, \
@@ -70,12 +69,7 @@
                             th``_``vip``_0_FIFO_SIZE, \
                             th``_``vip``_0_AXI_ID_WIDTH_SRC, \
                             th``_``vip``_0_AXI_ID_WIDTH_DEST, \
-                            th``_``vip``_0_DISABLE_DEBUG_REGISTERS, \
-                            th``_``vip``_0_ENABLE_DIAGNOSTICS_IF, \
-                            th``_``vip``_0_ENABLE_FRAME_LOCK, \
-                            th``_``vip``_0_MAX_NUM_FRAMES, \
-                            th``_``vip``_0_USE_EXT_SYNC, \
-                            th``_``vip``_0_HAS_AUTORUN
+                            th``_``vip``_0_DISABLE_DEBUG_REGISTERS
 
 // Help build VIP Interface parameters name
 `define AXI_VIP_IF_PARAMS(th,vip)    th``_``vip``_0_VIP_PROTOCOL,\
