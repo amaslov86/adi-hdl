@@ -273,6 +273,10 @@ ad_connect adc_trigger/data_valid_a axi_adc_decimate/adc_dec_valid_a
 ad_connect adc_trigger/data_b axi_adc_decimate/adc_dec_data_b
 ad_connect adc_trigger/data_valid_b axi_adc_decimate/adc_dec_valid_b
 
+ad_connect axi_adc_decimate/adc_dec_valid_a  logic_analyzer/external_valid
+ad_connect axi_adc_decimate/adc_data_rate  logic_analyzer/external_rate
+ad_connect axi_adc_decimate/adc_oversampling_en  logic_analyzer/external_decimation_en
+
 ad_connect adc_trigger/clk axi_ad9963/adc_clk
 ad_connect trigger_i adc_trigger/trigger_i
 ad_connect trigger_o adc_trigger/trigger_o
@@ -358,3 +362,54 @@ ad_cpu_interrupt ps-12 mb-13 pattern_generator_dmac/irq
 ad_cpu_interrupt ps-10 mb-14 ad9963_adc_dmac/irq
 ad_cpu_interrupt ps-9 mb-15 ad9963_dac_dmac_a/irq
 ad_cpu_interrupt ps-8 mb-16 ad9963_dac_dmac_b/irq
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:ila:6.2 ila_0
+set_property -dict [list \
+  CONFIG.C_NUM_OF_PROBES {14} \
+  CONFIG.C_PROBE7_TYPE {1} \
+  CONFIG.C_PROBE5_TYPE {0} \
+  CONFIG.C_PROBE3_TYPE {1} \
+  CONFIG.C_PROBE1_TYPE {1} \
+  CONFIG.C_PROBE12_WIDTH {16} \
+  CONFIG.C_PROBE7_WIDTH {16} \
+  CONFIG.C_PROBE5_WIDTH {1} \
+  CONFIG.C_PROBE3_WIDTH {16} \
+  CONFIG.C_PROBE1_WIDTH {16} \
+  CONFIG.C_DATA_DEPTH {16384} \
+  CONFIG.ALL_PROBE_SAME_MU {true} \
+  CONFIG.C_ENABLE_ILA_AXI_MON {false} \
+  CONFIG.C_MONITOR_TYPE {Native} \
+] [get_bd_cells ila_0]
+
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_0
+set_property -dict [list CONFIG.DIN_WIDTH {16} CONFIG.DIN_TO {0} CONFIG.DIN_FROM {0}] [get_bd_cells xlslice_0]
+
+connect_bd_net [get_bd_pins xlslice_0/Din] [get_bd_pins logic_analyzer/adc_data]
+
+connect_bd_net [get_bd_pins ila_0/clk] [get_bd_pins axi_ad9963/adc_clk]
+connect_bd_net [get_bd_pins ila_0/probe0] [get_bd_pins axi_ad9963/adc_valid_i]
+connect_bd_net [get_bd_pins ila_0/probe1] [get_bd_pins axi_ad9963/adc_data_i]
+connect_bd_net [get_bd_pins ila_0/probe2] [get_bd_pins axi_adc_decimate/adc_dec_valid_a]
+connect_bd_net [get_bd_pins ila_0/probe3] [get_bd_pins axi_adc_decimate/adc_dec_data_a]
+connect_bd_net [get_bd_pins ila_0/probe4] [get_bd_pins logic_analyzer/adc_valid]
+connect_bd_net [get_bd_pins ila_0/probe5] [get_bd_pins xlslice_0/Dout]
+connect_bd_net [get_bd_pins ila_0/probe6] [get_bd_pins adc_trigger/trigger_out]
+connect_bd_net [get_bd_pins ila_0/probe7] [get_bd_pins adc_trigger/data_a_trig]
+connect_bd_net [get_bd_pins ila_0/probe8] [get_bd_pins logic_analyzer/trigger_out]
+connect_bd_net [get_bd_pins ila_0/probe9] [get_bd_pins logic_analyzer/adc_data_0_m1]
+connect_bd_net [get_bd_pins ila_0/probe10] [get_bd_pins logic_analyzer/adc_data_0_m2]
+connect_bd_net [get_bd_pins ila_0/probe11] [get_bd_pins logic_analyzer/adc_data_0_m3]
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_1
+set_property -dict [list CONFIG.DIN_FROM {15} CONFIG.DOUT_WIDTH {16}] [get_bd_cells xlslice_1]
+connect_bd_net [get_bd_pins xlslice_1/Din] [get_bd_pins adc_trigger_fifo/data_out]
+
+connect_bd_net [get_bd_pins ila_0/probe12] [get_bd_pins xlslice_1/Dout]
+
+create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_2
+set_property -dict [list CONFIG.DIN_WIDTH {16} CONFIG.DIN_TO {0} CONFIG.DIN_FROM {0}] [get_bd_cells xlslice_2]
+connect_bd_net [get_bd_pins xlslice_2/Din] [get_bd_pins la_trigger_fifo/data_out]
+
+connect_bd_net [get_bd_pins xlslice_2/Dout] [get_bd_pins ila_0/probe13]
+
