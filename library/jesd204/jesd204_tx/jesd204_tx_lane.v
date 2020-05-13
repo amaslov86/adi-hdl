@@ -50,7 +50,7 @@ module jesd204_tx_lane #(
   input clk,
 
   input [DATA_PATH_WIDTH-1:0] eof,
-  input eomf,
+  input [DATA_PATH_WIDTH-1:0] eomf,
 
   input cgs_enable,
 
@@ -63,10 +63,14 @@ module jesd204_tx_lane #(
   output reg [DATA_PATH_WIDTH*8-1:0] phy_data,
   output reg [DATA_PATH_WIDTH-1:0] phy_charisk,
 
+  input [7:0] cfg_octets_per_frame,
+  input cfg_disable_char_replacement,
   input cfg_disable_scrambler
 );
 
 wire [DATA_PATH_WIDTH*8-1:0] scrambled_data;
+wire [DATA_PATH_WIDTH*8-1:0] data_replaced;
+wire [DATA_PATH_WIDTH-1:0] charisk_replaced;
 wire [7:0] scrambled_char[0:DATA_PATH_WIDTH-1];
 reg [7:0] char_align[0:DATA_PATH_WIDTH-1];
 
@@ -81,6 +85,24 @@ jesd204_scrambler #(
   .data_out(scrambled_data)
 );
 
+jesd204_frame_align_replace #(
+  .DATA_PATH_WIDTH              (DATA_PATH_WIDTH),
+  .IS_RX                        (1'b0)
+) i_align_replace (
+  .clk                          (clk),
+  .reset                        (~tx_ready),
+  .cfg_octets_per_frame         (cfg_octets_per_frame),
+  .cfg_disable_char_replacement (cfg_disable_char_replacement),
+  .cfg_disable_scrambler        (cfg_disable_scrambler),
+  .data                         (scrambled_data),
+  .eof                          (eof),
+  .rx_char_is_a                 ({DATA_PATH_WIDTH{1'b0}}),
+  .rx_char_is_f                 ({DATA_PATH_WIDTH{1'b0}}),
+  .tx_eomf                      (eomf),
+  .data_out                     (data_replaced),
+  .charisk_out                  (charisk_replaced)
+);
+
 generate
 genvar i;
 
@@ -88,7 +110,7 @@ for (i = 0; i < DATA_PATH_WIDTH; i = i + 1) begin: gen_char
   assign scrambled_char[i] = scrambled_data[i*8+7:i*8];
 
   always @(*) begin
-    if (i == DATA_PATH_WIDTH-1 && eomf == 1'b1) begin
+    if (eomf[i]) begin
       char_align[i] <= 8'h7c; // /A/
     end else begin
       char_align[i] <= 8'hfc; // /F/
@@ -96,10 +118,14 @@ for (i = 0; i < DATA_PATH_WIDTH; i = i + 1) begin: gen_char
   end
 
   always @(posedge clk) begin
-    if (cgs_enable == 1'b1) begin
+    if (cgs_enable) begin
       phy_charisk[i] <= 1'b1;
-    end else if (eof[i] == 1'b1 && scrambled_char[i] == char_align[i]) begin
-      phy_charisk[i] <= 1'b1;
+    end else if (tx_ready) begin
+      if(!cfg_disable_scrambler) begin
+        phy_charisk[i] <= eof[i] && (scrambled_char[i] == char_align[i]);
+      end else begin
+        phy_charisk[i] <= charisk_replaced[i];
+      end
     end else begin
       phy_charisk[i] <= ilas_charisk[i];
     end
@@ -109,10 +135,14 @@ end
 endgenerate
 
 always @(posedge clk) begin
-  if (cgs_enable == 1'b1) begin
+  if (cgs_enable) begin
     phy_data <= {DATA_PATH_WIDTH{8'hbc}};
   end else begin
-    phy_data <= (tx_ready) ? scrambled_data : ilas_data;
+    if(tx_ready) begin
+      phy_data <= data_replaced;
+    end else begin
+      phy_data <= ilas_data;
+    end
   end
 end
 

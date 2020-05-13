@@ -58,8 +58,7 @@ adi_ip_files jesd204_rx [list \
   "jesd204_ilas_monitor.v" \
   "align_mux.v" \
   "jesd204_lane_latency_monitor.v" \
-  "jesd204_rx_frame_mark.v" \
-  "jesd204_rx_frame_align_monitor.v" \
+  "jesd204_rx_frame_align.v" \
   "jesd204_rx_constr.ttcl" \
   "jesd204_rx.v" \
 ]
