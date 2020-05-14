@@ -189,7 +189,6 @@ always @(posedge clk) begin
   tx_somf <= tx_somf_early1;
   tx_eomf <= tx_eomf_early1;
 end
-
 generate
 genvar i;
 
@@ -207,7 +206,6 @@ always @(posedge clk) begin
   tx_eof_d <= tx_eof;
   tx_eomf_d <= tx_eomf;
 end
-
 jesd204_tx_ctrl #(
   .NUM_LANES(NUM_LANES),
   .NUM_LINKS(NUM_LINKS),

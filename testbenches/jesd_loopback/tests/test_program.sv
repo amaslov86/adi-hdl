@@ -96,7 +96,6 @@ program test_program;
     env.mng.RegWrite32(`AXI_JESD_RX+32'h00c0,32'h00000000);
     env.mng.RegWrite32(`AXI_JESD_TX+32'h00c0,32'h00000000);
 
-
     //PHY INIT
     //REG CTRL
     env.mng.RegWrite32(`ADC_XCVR+32'h0020,32'h00001004);   // RXOUTCLK uses DIV2 

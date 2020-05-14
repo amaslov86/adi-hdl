@@ -95,7 +95,6 @@ wire eomb;
 wire eoemb;
 
 wire [7:0] sh_count;
-
 jesd204_rx_header i_rx_header (
   .clk(clk),
   .reset(reset),
@@ -148,7 +147,6 @@ always @(posedge clk) begin
     crc12_rdy <= 1'b1;
   end
 end
-
 always @(posedge clk) begin
   if (eomb) begin
     crc12_calculated_prev <= crc12_calculated;
@@ -214,8 +212,6 @@ always @(posedge clk) begin
     buffer_ready_n <= 1'b0;
   end
 end
-
-
 elastic_buffer #(
   .WIDTH(64),
   .SIZE(ELASTIC_BUFFER_SIZE)
@@ -236,7 +232,6 @@ always @(posedge clk) begin
     status_lane_skew <= sh_count;
   end
 end
-
 
 /* Reorder octets LSB first */
 genvar i;
