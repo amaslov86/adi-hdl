@@ -55,14 +55,16 @@ module jesd204_rx_header (
   input [4:0] cfg_rx_thresh_emb_err,
   input [7:0] cfg_beats_per_multiframe,
 
-  output emb_lock_n,
+  output emb_lock,
 
-  output eomb,
-  // Received header data qualified by eomb
+  output valid_eomb,
+  output valid_eoemb,
+  // Received header data qualified by valid_eomb
   output [11:0] crc12,
   output [2:0] crc3,
   output [25:0] fec,
   output [18:0] cmd,
+  output reg [7:0] sh_count = 'h0,
 
   output [2:0] status_lane_emb_state,
   output reg event_invalid_header,
@@ -91,6 +93,8 @@ wire invalid_eomb;
 wire [6:0] cmd0;
 wire [6:0] cmd1;
 wire [18:0] cmd3;
+wire eoemb;
+wire eomb;
 
 assign header_bit = header == 2'b01;
 
@@ -122,7 +126,6 @@ assign eomb  = sync_word[4:0] == 5'b00001;
 assign eoemb = sync_word[9] & eomb;
 
 
-reg [7:0] sh_count = 'h0;
 always @(posedge clk) begin
   if (next_state[BIT_EMB_INIT] || sh_count == cfg_beats_per_multiframe) begin
     sh_count <= 'h0;
@@ -177,6 +180,8 @@ end
 
 assign invalid_eoemb = (sh_count == 0 && ~eoemb);
 assign invalid_eomb = (sh_count[4:0] == 0 && ~eomb);
+assign valid_eomb = next_state[BIT_EMB_LOCK] && eomb;
+assign valid_eoemb = next_state[BIT_EMB_LOCK] && eoemb;
 
 assign invalid_sequence = (invalid_eoemb || invalid_eomb);
 
@@ -188,7 +193,7 @@ always @(posedge clk) begin
   end
 end
 
-assign emb_lock_n = ~state[BIT_EMB_LOCK];
+assign emb_lock = next_state[BIT_EMB_LOCK];
 
 // Status & error events
 assign status_lane_emb_state = state;
