@@ -26,13 +26,17 @@ set_interface_property tx_sync EXPORT_OF ad9144_jesd204.sync
 
 # ad9144-core
 
-add_instance axi_ad9144_core axi_ad9144
-set_instance_parameter_value axi_ad9144_core {QUAD_OR_DUAL_N} {0}
+add_instance axi_ad9144 ad_ip_jesd204_tpl_dac
+set_instance_parameter_value axi_ad9144 {ID} {0}
+set_instance_parameter_value axi_ad9144 {NUM_CHANNELS} {2}
+set_instance_parameter_value axi_ad9144 {NUM_LANES} {4}
+set_instance_parameter_value axi_ad9144 {BITS_PER_SAMPLE} {16}
+set_instance_parameter_value axi_ad9144 {CONVERTER_RESOLUTION} {16}
 
-add_connection ad9144_jesd204.link_clk axi_ad9144_core.if_tx_clk
-add_connection axi_ad9144_core.if_tx_data ad9144_jesd204.link_data
-add_connection sys_clk.clk_reset axi_ad9144_core.s_axi_reset
-add_connection sys_clk.clk axi_ad9144_core.s_axi_clock
+add_connection ad9144_jesd204.link_clk axi_ad9144.link_clk
+add_connection axi_ad9144.link_data ad9144_jesd204.link_data
+add_connection sys_clk.clk_reset axi_ad9144.s_axi_reset
+add_connection sys_clk.clk axi_ad9144.s_axi_clock
 
 # ad9144-unpack
 
@@ -44,8 +48,8 @@ set_instance_parameter_value util_ad9144_upack {INTERFACE_TYPE} {1}
 
 add_connection ad9144_jesd204.link_clk util_ad9144_upack.clk
 add_connection ad9144_jesd204.link_reset util_ad9144_upack.reset
-add_connection axi_ad9144_core.dac_ch_0 util_ad9144_upack.dac_ch_0
-add_connection axi_ad9144_core.dac_ch_1 util_ad9144_upack.dac_ch_1
+add_connection axi_ad9144.dac_ch_0 util_ad9144_upack.dac_ch_0
+add_connection axi_ad9144.dac_ch_1 util_ad9144_upack.dac_ch_1
 
 # dac fifo
 
@@ -58,7 +62,7 @@ add_connection ad9144_jesd204.link_clk avl_ad9144_fifo.if_dac_clk
 add_connection ad9144_jesd204.link_reset avl_ad9144_fifo.if_dac_rst
 add_connection util_ad9144_upack.if_packed_fifo_rd_en avl_ad9144_fifo.if_dac_valid
 add_connection avl_ad9144_fifo.if_dac_data util_ad9144_upack.if_packed_fifo_rd_data
-add_connection avl_ad9144_fifo.if_dac_dunf axi_ad9144_core.if_dac_dunf
+add_connection avl_ad9144_fifo.if_dac_dunf axi_ad9144.if_dac_dunf
 
 # ad9144-dma
 
@@ -109,13 +113,19 @@ set_interface_property rx_sync EXPORT_OF ad9680_jesd204.sync
 
 # ad9680
 
-add_instance axi_ad9680_core axi_ad9680
+add_instance axi_ad9680 ad_ip_jesd204_tpl_adc
+set_instance_parameter_value axi_ad9680 {ID} {0}
+set_instance_parameter_value axi_ad9680 {NUM_CHANNELS} {2}
+set_instance_parameter_value axi_ad9680 {NUM_LANES} {4}
+set_instance_parameter_value axi_ad9680 {BITS_PER_SAMPLE} {16}
+set_instance_parameter_value axi_ad9680 {CONVERTER_RESOLUTION} {16}
+set_instance_parameter_value axi_ad9680 {TWOS_COMPLEMENT} {1}
 
-add_connection ad9680_jesd204.link_clk axi_ad9680_core.if_rx_clk
-add_connection ad9680_jesd204.link_sof axi_ad9680_core.if_rx_sof
-add_connection ad9680_jesd204.link_data axi_ad9680_core.if_rx_data
-add_connection sys_clk.clk_reset axi_ad9680_core.s_axi_reset
-add_connection sys_clk.clk axi_ad9680_core.s_axi_clock
+add_connection ad9680_jesd204.link_clk axi_ad9680.link_clk
+add_connection ad9680_jesd204.link_sof axi_ad9680.if_link_sof
+add_connection ad9680_jesd204.link_data axi_ad9680.link_data
+add_connection sys_clk.clk_reset axi_ad9680.s_axi_reset
+add_connection sys_clk.clk axi_ad9680.s_axi_clock
 
 # ad9680-pack
 
@@ -126,8 +136,8 @@ set_instance_parameter_value util_ad9680_cpack {SAMPLE_DATA_WIDTH} {16}
 
 add_connection ad9680_jesd204.link_reset util_ad9680_cpack.reset
 add_connection ad9680_jesd204.link_clk util_ad9680_cpack.clk
-add_connection axi_ad9680_core.adc_ch_0 util_ad9680_cpack.adc_ch_0
-add_connection axi_ad9680_core.adc_ch_1 util_ad9680_cpack.adc_ch_1
+add_connection axi_ad9680.adc_ch_0 util_ad9680_cpack.adc_ch_0
+add_connection axi_ad9680.adc_ch_1 util_ad9680_cpack.adc_ch_1
 
 # ad9680-fifo
 
@@ -158,7 +168,7 @@ set_instance_parameter_value axi_ad9680_dma {DMA_TYPE_SRC} {1}
 add_connection sys_dma_clk.clk axi_ad9680_dma.if_s_axis_aclk
 add_connection ad9680_adcfifo.m_axis axi_ad9680_dma.s_axis
 add_connection ad9680_adcfifo.if_dma_xfer_req axi_ad9680_dma.if_s_axis_xfer_req
-add_connection ad9680_adcfifo.if_adc_wovf axi_ad9680_core.if_adc_dovf
+add_connection ad9680_adcfifo.if_adc_wovf axi_ad9680.if_adc_dovf
 add_connection sys_clk.clk_reset axi_ad9680_dma.s_axi_reset
 add_connection sys_clk.clk axi_ad9680_dma.s_axi_clock
 add_connection sys_dma_clk.clk_reset axi_ad9680_dma.m_dest_axi_reset
@@ -185,7 +195,7 @@ ad_cpu_interconnect 0x00029000 avl_adxcfg_1.rcfg_s0
 ad_cpu_interconnect 0x0002a000 avl_adxcfg_2.rcfg_s0
 ad_cpu_interconnect 0x0002b000 avl_adxcfg_3.rcfg_s0
 ad_cpu_interconnect 0x0002c000 axi_ad9144_dma.s_axi
-ad_cpu_interconnect 0x00034000 axi_ad9144_core.s_axi
+ad_cpu_interconnect 0x00034000 axi_ad9144.s_axi
 
 ad_cpu_interconnect 0x00040000 ad9680_jesd204.link_reconfig
 ad_cpu_interconnect 0x00044000 ad9680_jesd204.link_management
@@ -195,7 +205,7 @@ ad_cpu_interconnect 0x00049000 avl_adxcfg_1.rcfg_s1
 ad_cpu_interconnect 0x0004a000 avl_adxcfg_2.rcfg_s1
 ad_cpu_interconnect 0x0004b000 avl_adxcfg_3.rcfg_s1
 ad_cpu_interconnect 0x0004c000 axi_ad9680_dma.s_axi
-ad_cpu_interconnect 0x00050000 axi_ad9680_core.s_axi
+ad_cpu_interconnect 0x00050000 axi_ad9680.s_axi
 
 # dma interconnects
 
