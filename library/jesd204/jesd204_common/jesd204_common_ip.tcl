@@ -54,6 +54,7 @@ add_files -fileset [get_filesets sources_1] [list \
   "jesd204_crc12.v" \
   "jesd204_eof_generator.v" \
   "jesd204_frame_mark.v" \
+  "jesd204_frame_align_replace.v" \
   "pipeline_stage.v" \
 ]
 

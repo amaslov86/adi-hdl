@@ -142,7 +142,7 @@ add_interface config conduit end
 set_interface_property config associatedClock clock
 set_interface_property config associatedReset reset
 
-add_interface_port config cfg_beats_per_multiframe beats_per_multiframe Input 8
+add_interface_port config cfg_octets_per_multiframe octets_per_multiframe Input 10
 add_interface_port config cfg_continuous_cgs continuous_cgs Input 1
 add_interface_port config cfg_continuous_ilas continuous_ilas Input 1
 add_interface_port config cfg_disable_char_replacement disable_char_replacement Input 1

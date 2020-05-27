@@ -236,7 +236,7 @@ always @(*) begin
     /* 24-31 */ 8'h00, /* Reserved for future extensions of octets_per_frame */
     /* 16-23 */ up_cfg_octets_per_frame,
     /* 10-15 */ 6'b000000, /* Reserved for future extensions of beats_per_multiframe */
-    /* 00-09 */ up_cfg_octets_per_multiframe}
+    /* 00-09 */ up_cfg_octets_per_multiframe
   };
   12'h85: up_rdata <= {
     /* 02-31 */ 30'h00, /* Reserved for future additions */

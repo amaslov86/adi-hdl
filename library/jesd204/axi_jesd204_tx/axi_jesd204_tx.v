@@ -49,7 +49,7 @@ module axi_jesd204_tx #(
   parameter NUM_LANES = 1,
   parameter NUM_LINKS = 1,
   parameter LINK_MODE = 1,  // 2 - 64B/66B;  1 - 8B/10B
-  parameter DATA_PATH_WIDTH = LINK_MODE == 2 ? 8 : 4,
+  parameter DATA_PATH_WIDTH = LINK_MODE == 2 ? 8 : 4
 ) (
   input s_axi_aclk,
   input s_axi_aresetn,

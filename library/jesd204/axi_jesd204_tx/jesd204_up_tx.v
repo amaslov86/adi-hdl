@@ -47,7 +47,7 @@
 module jesd204_up_tx # (
   parameter NUM_LANES = 1,
   parameter NUM_LINKS = 1,
-  parameter DATA_PATH_WIDTH
+  parameter DATA_PATH_WIDTH = 4
 ) (
   input up_clk,
   input up_reset,
@@ -296,7 +296,7 @@ always @(posedge up_clk) begin
 end
 
 generate
-if(DATA_PATH_WIDTH == 4) : begin gen_dp_4
+if(DATA_PATH_WIDTH == 4)  begin: gen_dp_4
 always @(posedge core_clk) begin
   if (core_ilas_config_rd == 1'b1) begin
     for (i = 0; i < NUM_LANES; i = i + 1) begin
@@ -304,7 +304,7 @@ always @(posedge core_clk) begin
     end
   end
 end
-end else if(DATA_PATH_WIDTH == 8) : begin gen_dp_8
+end else if(DATA_PATH_WIDTH == 8)  begin: gen_dp_8
 always @(posedge core_clk) begin
   if (core_ilas_config_rd == 1'b1) begin
     for (i = 0; i < NUM_LANES; i = i + 1) begin

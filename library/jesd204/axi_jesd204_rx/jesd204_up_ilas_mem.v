@@ -85,16 +85,16 @@ always @(posedge core_clk) begin
   end
 end
 
-if(DATA_PATH_WIDTH == 4) : begin dp_4_gen
+if(DATA_PATH_WIDTH == 4)  begin : dp_4_gen
 always @(posedge up_clk) begin
   if (up_rreq == 1'b1) begin
     up_rdata <= mem[up_raddr];
   end
 end
-end else if(DATA_PATH_WIDTH == 8) : begin dp_8_gen
+end else if(DATA_PATH_WIDTH == 8) begin : dp_8_gen
 always @(posedge up_clk) begin
   if (up_rreq == 1'b1) begin
-    up_rdata <= mem[up_raddr[1]][32*up_raddr[0]+31:32*up_raddr[0]];
+    up_rdata <= mem[up_raddr[1]] >> (up_raddr[0]*32);
   end
 end
 end

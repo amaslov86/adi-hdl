@@ -49,7 +49,7 @@ module axi_jesd204_rx #(
   parameter NUM_LANES = 1,
   parameter NUM_LINKS = 1,
   parameter LINK_MODE = 1, // 2 - 64B/66B;  1 - 8B/10B
-  parameter DATA_PATH_WIDTH = LINK_MODE == 2 ? 8 : 4,
+  parameter DATA_PATH_WIDTH = LINK_MODE == 2 ? 8 : 4
 ) (
   input s_axi_aclk,
   input s_axi_aresetn,
@@ -260,7 +260,7 @@ jesd204_up_sysref #(
 jesd204_up_rx #(
   .NUM_LANES(NUM_LANES),
   .DATA_PATH_WIDTH(DATA_PATH_WIDTH),
-  .DATA_PATH_WIDTH_LOG2(DATA_PATH_WIDTH_LOG2),
+  .DATA_PATH_WIDTH_LOG2(DATA_PATH_WIDTH_LOG2)
 ) i_up_rx (
   .up_clk(s_axi_aclk),
   .up_reset(up_reset),
