@@ -1,0 +1,55 @@
+set_property  -dict {PACKAGE_PIN Y3     IOSTANDARD LVDS DIFF_TERM_ADV TERM_100}  [get_ports rx1_dclk_out_n]
+set_property  -dict {PACKAGE_PIN Y4     IOSTANDARD LVDS DIFF_TERM_ADV TERM_100}  [get_ports rx1_dclk_out_p]
+set_property  -dict {PACKAGE_PIN Y1     IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx1_idata_out_n]
+set_property  -dict {PACKAGE_PIN Y2     IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx1_idata_out_p]
+set_property  -dict {PACKAGE_PIN AA1    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx1_qdata_out_n]
+set_property  -dict {PACKAGE_PIN AA2    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx1_qdata_out_p]
+set_property  -dict {PACKAGE_PIN V1     IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx1_strobe_out_n]
+set_property  -dict {PACKAGE_PIN V2     IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx1_strobe_out_p]
+
+set_property  -dict {PACKAGE_PIN N11    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx2_dclk_out_n]
+set_property  -dict {PACKAGE_PIN P11    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx2_dclk_out_p]
+set_property  -dict {PACKAGE_PIN M13    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx2_idata_out_n]
+set_property  -dict {PACKAGE_PIN N13    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx2_idata_out_p]
+set_property  -dict {PACKAGE_PIN K13    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx2_qdata_out_n]
+set_property  -dict {PACKAGE_PIN L13    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx2_qdata_out_p]
+set_property  -dict {PACKAGE_PIN N12    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100} [get_ports rx2_strobe_out_n]
+set_property  -dict {PACKAGE_PIN P12    IOSTANDARD LVDS  DIFF_TERM_ADV TERM_100}  [get_ports rx2_strobe_out_p]
+
+
+set_property  -dict {PACKAGE_PIN U4     IOSTANDARD LVDS}  [get_ports tx1_dclk_in_n]
+set_property  -dict {PACKAGE_PIN U5     IOSTANDARD LVDS}  [get_ports tx1_dclk_in_p]
+set_property  -dict {PACKAGE_PIN AC4    IOSTANDARD LVDS DIFF_TERM_ADV TERM_100}  [get_ports tx1_dclk_out_n]
+set_property  -dict {PACKAGE_PIN AB4    IOSTANDARD LVDS DIFF_TERM_ADV TERM_100}  [get_ports tx1_dclk_out_p]
+set_property  -dict {PACKAGE_PIN V3     IOSTANDARD LVDS}  [get_ports tx1_idata_in_n]
+set_property  -dict {PACKAGE_PIN V4     IOSTANDARD LVDS}  [get_ports tx1_idata_in_p]
+set_property  -dict {PACKAGE_PIN AC3    IOSTANDARD LVDS}  [get_ports tx1_qdata_in_n]
+set_property  -dict {PACKAGE_PIN AB3    IOSTANDARD LVDS}  [get_ports tx1_qdata_in_p]
+set_property  -dict {PACKAGE_PIN AC1    IOSTANDARD LVDS}  [get_ports tx1_strobe_in_n]
+set_property  -dict {PACKAGE_PIN AC2    IOSTANDARD LVDS}  [get_ports tx1_strobe_in_p]
+
+set_property  -dict {PACKAGE_PIN M14    IOSTANDARD LVDS}  [get_ports tx2_dclk_in_n]
+set_property  -dict {PACKAGE_PIN M15    IOSTANDARD LVDS}  [get_ports tx2_dclk_in_p]
+set_property  -dict {PACKAGE_PIN N8     IOSTANDARD LVDS DIFF_TERM_ADV TERM_100}  [get_ports tx2_dclk_out_n]
+set_property  -dict {PACKAGE_PIN N9     IOSTANDARD LVDS DIFF_TERM_ADV TERM_100}  [get_ports tx2_dclk_out_p]
+set_property  -dict {PACKAGE_PIN K16    IOSTANDARD LVDS}  [get_ports tx2_idata_in_n]
+set_property  -dict {PACKAGE_PIN L16    IOSTANDARD LVDS}  [get_ports tx2_idata_in_p]
+set_property  -dict {PACKAGE_PIN L11    IOSTANDARD LVDS}  [get_ports tx2_qdata_in_n]
+set_property  -dict {PACKAGE_PIN M11    IOSTANDARD LVDS}  [get_ports tx2_qdata_in_p]
+set_property  -dict {PACKAGE_PIN K12    IOSTANDARD LVDS}  [get_ports tx2_strobe_in_n]
+set_property  -dict {PACKAGE_PIN L12    IOSTANDARD LVDS}  [get_ports tx2_strobe_in_p]
+
+# clocks
+
+create_clock -name ref_clk        -period  8.00 [get_ports fpga_ref_clk_p]
+
+create_clock -name rx1_dclk_out   -period  2.00 [get_ports rx1_dclk_out_p]
+create_clock -name rx2_dclk_out   -period  2.00 [get_ports rx2_dclk_out_p]
+create_clock -name tx1_dclk_out   -period  2.00 [get_ports tx1_dclk_out_p]
+create_clock -name tx2_dclk_out   -period  2.00 [get_ports tx2_dclk_out_p]
+
+set_clock_latency -source -early 0.2 [get_clocks rx1_dclk_out]
+set_clock_latency -source -early 0.2 [get_clocks rx2_dclk_out]
+
+set_clock_latency -source -late 0.5 [get_clocks rx1_dclk_out]
+set_clock_latency -source -late 0.5 [get_clocks rx2_dclk_out]
