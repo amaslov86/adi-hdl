@@ -332,6 +332,7 @@ module axi_adrv9001 #(
   axi_ad9001_core #(
     .ID (ID),
     .NUM_LANES (NUM_LANES),
+    .CMOS_LVDS_N (CMOS_LVDS_N),
     .DRP_WIDTH (DRP_WIDTH),
     .FPGA_TECHNOLOGY (FPGA_TECHNOLOGY),
     .FPGA_FAMILY (FPGA_FAMILY),
