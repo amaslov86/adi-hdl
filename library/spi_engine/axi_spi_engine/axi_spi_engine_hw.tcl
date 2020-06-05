@@ -55,18 +55,18 @@ proc p_elaboration {} {
     ad_interface reset   up_rstn   input                  1   if_up_clk
     ad_interface signal  up_wreq   input                  1
     ad_interface signal  up_wack   output                 1
-    ad_interface signal  up_waddr  input                  8
-    ad_interface signal  up_wdata  input                 31
+    ad_interface signal  up_waddr  input                 14
+    ad_interface signal  up_wdata  input                 32
     ad_interface signal  up_rreq   input                  1
     ad_interface signal  up_rack   output                 1
-    ad_interface signal  up_raddr  output                 8
-    ad_interface signal  up_rdata  output                31
+    ad_interface signal  up_raddr  output                14
+    ad_interface signal  up_rdata  output                32
 
   } else {
 
     # AXI Memory Mapped interface
 
-    ad_ip_intf_s_axi s_axi_aclk s_axi_aresetn 10
+    ad_ip_intf_s_axi s_axi_aclk s_axi_aresetn 1
 
     set_interface_property interrupt_sender associatedAddressablePoint s_axi
     set_interface_property interrupt_sender associatedClock s_axi_clock
